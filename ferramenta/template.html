@@ -40,6 +40,19 @@ button.sec{background:transparent;color:#fff;border:1px solid rgba(255,255,255,.
 .bar u{position:absolute;top:-2px;bottom:-2px;width:2px;background:#333;opacity:.55}
 .empty{text-align:center;color:var(--mut);padding:30px 10px}
 .hide{display:none!important}
+.tabs{display:flex;gap:6px;margin-bottom:10px}
+.tabs button{flex:1;margin:0;padding:10px 6px;background:#fff;color:var(--pri);border:1px solid var(--pri);font-size:13.5px}
+.tabs button.on{background:var(--pri);color:#fff}
+.fam{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px;margin-bottom:10px}
+.fam.tot{border:2px solid var(--pri)}
+.fam .hd{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.fam .hd b{font-size:15px}
+.sec{font-size:11px;font-weight:700;color:var(--pri);margin:8px 0 4px;letter-spacing:.3px}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:6px 8px}
+.g3 div{font-size:10.5px;color:var(--mut)}
+.g3 b{display:block;font-size:14px;color:var(--ink);white-space:nowrap}
+.g3 .neg b{color:var(--bad)}
+.troca{font-size:11.5px;color:var(--mut);margin-top:8px;border-top:1px dashed var(--line);padding-top:6px}
 footer{max-width:760px;margin:6px auto 24px;padding:0 14px;text-align:center;color:var(--mut);font-size:12.5px}
 footer .by{margin-bottom:8px}footer b{color:var(--ink)}
 footer details{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:10px 12px;text-align:left}
@@ -49,7 +62,7 @@ label.lembrar input{width:20px;height:20px;margin:0}
 .busca{display:flex;gap:8px}.busca input{flex:1}.busca button{width:auto;margin:0;padding:0 18px}
 .redes{width:100%;border-collapse:collapse;font-size:13px}.redes th{font-size:11px;color:var(--mut);font-weight:500;text-align:right;padding:4px}
 .redes th:first-child,.redes td:first-child{text-align:left}.redes td{padding:7px 4px;border-top:1px solid var(--line);text-align:right}
-.redes tr.tot td{font-weight:700}.redes .pill{display:inline-block;min-width:46px;padding:2px 6px;border-radius:10px;color:#fff;font-size:12px;text-align:center}
+.redes tr.tot td{font-weight:700}.pill{display:inline-block;min-width:46px;padding:2px 6px;border-radius:10px;color:#fff;font-size:12px;text-align:center}
 h2{font-size:14px;margin:0 0 6px}
 .top{display:flex;justify-content:space-between;align-items:center;gap:8px}
 .leg{font-size:11.5px;color:var(--mut);display:flex;gap:12px;flex-wrap:wrap;margin:0 2px 10px}
@@ -71,6 +84,7 @@ h2{font-size:14px;margin:0 0 6px}
  </section>
 
  <section id="app" class="hide">
+  <div class="tabs"><button id="tCx" class="on">📦 Caixas por produto</button><button id="tVal">💰 Valores R$ / KG</button></div>
   <div class="card">
    <div id="fVendWrap" class="grid hide">
     <div><label>Supervisão</label><select id="fSup"></select></div>
@@ -81,9 +95,10 @@ h2{font-size:14px;margin:0 0 6px}
     <div><label>Categoria</label><select id="fCat"></select></div>
    </div>
    <label>Loja</label><select id="fLoja"></select>
-   <label>Buscar produto</label>
-   <form id="fForm" class="busca"><input id="fBusca" type="search" enterkeyhint="search" autocomplete="off" placeholder="ex.: requeijão 200 zero"><button type="submit" id="bBusca">Buscar</button></form>
+   <div id="buscaWrap"><label>Buscar produto</label>
+   <form id="fForm" class="busca"><input id="fBusca" type="search" enterkeyhint="search" autocomplete="off" placeholder="ex.: requeijão 200 zero"><button type="submit" id="bBusca">Buscar</button></form></div>
   </div>
+  <div id="vCx">
   <div class="kpis">
    <div class="kpi"><b id="kMeta">0</b><span>Meta cx</span></div>
    <div class="kpi"><b id="kVenda">0</b><span>Faturado</span></div>
@@ -94,6 +109,8 @@ h2{font-size:14px;margin:0 0 6px}
   <div class="card" id="resumo"></div>
   <div class="leg"><span><em style="background:var(--ok)"></em>no ritmo</span><span><em style="background:var(--warn)"></em>80–100% do ritmo</span><span><em style="background:var(--bad)"></em>abaixo de 80%</span><span>▏ ritmo ideal</span></div>
   <div id="lista"></div>
+  </div>
+  <div id="vVal" class="hide"></div>
  </section>
 </main>
 <footer>
@@ -148,12 +165,13 @@ function montar(){
   $('fRede').innerHTML=opt(redes.map(r=>[r,r]),'Todas');
   ['fSup','fVend','fRede','fCat','fLoja'].forEach(id=>$(id).onchange=()=>{if(id!=='fLoja'&&id!=='fCat')$('fLoja').dataset.keep='';atualizar(id)});
   $('fBusca').oninput=()=>render();
+  $('tCx').onclick=()=>aba('cx');$('tVal').onclick=()=>aba('val');
   $('fForm').onsubmit=e=>{e.preventDefault();$('fBusca').blur();render();$('kMeta').scrollIntoView({behavior:'smooth',block:'start'})};
   atualizar();
 }
 function base(ignorar){ // linhas filtradas por vendedor e rede
   const fv=$('fVend').value,fr=$('fRede').value,fs=D.vends?$('fSup').value:'';
-  return D.d.filter(r=>(!D.vends||fv===''||r[6]==fv)&&(fs===''||r[7]==fs)&&(fr===''||D.redes[r[0]]===fr));
+  return D.d.filter(r=>(!D.vends||fv===''||r[16]==fv)&&(fs===''||r[17]==fs)&&(fr===''||D.redes[r[0]]===fr));
 }
 function atualizar(origem){
   const rs=base();
@@ -183,7 +201,34 @@ function resumo(rs,q){
   $('resumo').innerHTML=`<h2>Resumo por rede</h2><table class="redes"><tr><th>Rede (lojas)</th><th>Meta cx</th><th>Fat.+cart.</th><th>Falta</th><th>%</th></tr>${body}${ls.length>1?linha('Total',T,'tot'):''}</table>`;
 }
 const norm=s=>s.normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase();
+let ABA='cx';
+function aba(a){ABA=a;$('tCx').classList.toggle('on',a==='cx');$('tVal').classList.toggle('on',a==='val');
+  $('vCx').classList.toggle('hide',a!=='cx');$('vVal').classList.toggle('hide',a!=='val');$('buscaWrap').classList.toggle('hide',a!=='cx');render()}
+const brl=n=>(n<0?'-':'')+'R$ '+Math.round(Math.abs(n)).toLocaleString('pt-BR');
+const kg=n=>Math.round(n).toLocaleString('pt-BR');
+const pc=n=>(n*100).toFixed(1).replace('.',',')+'%';
+const ORD=['MIX','UHT LITRO','IOGURTE','MUSSARELA','LEITE EM PO','BEBIDA LÁCTEA'];
+function valores(){
+  const fl=$('fLoja').value,fc=$('fCat').value;
+  const rs=base().filter(r=>(fl===''||r[0]==fl)&&(fc===''||r[1]==fc));
+  const m=new Map(),z=()=>({mr:0,vr:0,dr:0,tr:0,cr:0,mk:0,vk:0,dk:0,ck:0});const T=z();
+  for(const r of rs){const k=D.fams[r[6]];const o=m.get(k)||z();
+    [[o,1],[T,1]].forEach(([x])=>{x.mr+=r[7];x.vr+=r[8];x.dr+=r[9];x.tr+=r[10];x.cr+=r[11];x.mk+=r[12];x.vk+=r[13];x.dk+=r[14];x.ck+=r[15]});m.set(k,o)}
+  const card=(nome,o,tot)=>{
+    const lr=o.vr-o.dr-o.tr,lk=o.vk-o.dk,ar=o.mr?lr/o.mr:0,fr=o.mr?(lr+o.cr)/o.mr:0,ak=o.mk?lk/o.mk:0,fk=o.mk?(lk+o.ck)/o.mk:0;
+    return `<div class="fam ${tot?'tot':''}"><div class="hd"><b>${nome}</b><span class="pill" style="background:${farol(fr)}">${pc(fr)} fat.+cart.</span></div>
+    <div class="sec">VALOR (R$)</div><div class="g3">
+     <div><b>${brl(o.mr)}</b>Meta</div><div><b>${brl(o.vr)}</b>Venda</div><div class="${lr<0?'neg':''}"><b>${brl(lr)}</b>Venda líquida</div>
+     <div><b style="color:${farol(ar)}">${pc(ar)}</b>% Atingido</div><div><b>${brl(o.cr)}</b>Carteira</div><div class="neg"><b>${brl(Math.max(0,o.mr-lr-o.cr))}</b>Falta</div></div>
+    <div class="sec">VOLUME (KG)</div><div class="g3">
+     <div><b>${kg(o.mk)}</b>Meta</div><div><b>${kg(o.vk)}</b>Venda</div><div class="${lk<0?'neg':''}"><b>${kg(lk)}</b>Venda líquida</div>
+     <div><b style="color:${farol(ak)}">${pc(ak)}</b>% Atingido</div><div><b>${kg(o.ck)}</b>Carteira</div><div><b style="color:${farol(fk)}">${pc(fk)}</b>% Fat.+cart.</div></div>
+    <div class="troca">Troca total: <b>${brl(o.tr)}</b> · Devolução: <b>${brl(o.dr)}</b></div></div>`};
+  const fams=[...m.keys()].sort((a,b)=>{const i=ORD.indexOf(a),j=ORD.indexOf(b);return (i<0?99:i)-(j<0?99:j)||a.localeCompare(b)});
+  $('vVal').innerHTML=rs.length?`<div class="ritmo">Ritmo ideal hoje: <b>${pc(IDEAL)}</b> (dia ${META.dia} de ${META.dias}) · venda líquida = venda − devolução − troca</div>`+card('TOTAL GERAL',T,true)+fams.map(f=>card(f,m.get(f))).join(''):'<div class="empty">Sem dados nesse filtro.</div>';
+}
 function render(){
+  if(ABA==='val'){valores();return}
   const fl=$('fLoja').value,fc=$('fCat').value,q=norm($('fBusca').value).split(/\s+/).filter(Boolean);
   const rs=base().filter(r=>(fl===''||r[0]==fl)&&(fc===''||r[1]==fc));
   resumo(rs,q);

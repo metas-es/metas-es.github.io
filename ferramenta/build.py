@@ -35,19 +35,30 @@ for r in raw:
     vend = r[ix['VENDEDOR']]
     if vend not in VEND: continue
     meta, venda, cart = num(r[ix['META CAIXA']]), num(r[ix['VENDA FAT CAIXA']]), num(r[ix['CARTEIRA - CX']])
-    if meta == 0 and venda == 0 and cart == 0: continue
+    val = [num(r[ix['META R$']]), num(r[ix['VENDA R$']]),
+           num(r[ix['DEV R$']]) + num(r[ix['DEV SAC R$']]), num(r[ix['TROCA R$']]) + num(r[ix['TROCA SAC R$']]),
+           num(r[ix['PEDIDOS ABERTOS R$']]),
+           num(r[ix['META KG']]), num(r[ix['VENDA KG']]),
+           num(r[ix['DEV KG']]) + num(r[ix['DEV SAC KG']]) + num(r[ix['TROCA KG']]) + num(r[ix['TROCA SAC KG']]),
+           num(r[ix['PEDIDOS ABERTOS KG']])]
+    if meta == 0 and venda == 0 and cart == 0 and not any(val): continue
     rows.append(dict(v=vend if vend != SUP else 'ALEX PORTES (CDs / carga fechada)', sup=r[ix['SUPERVISÃO']], rede=r[ix['REDE']], loja=r[ix['LOJA']], cat=r[ix['CATEGORIA']],
-                     sku=nome_sku(r[ix['SKU']]), meta=meta, venda=venda, cart=cart))
+                     sku=nome_sku(r[ix['SKU']]), meta=meta, venda=venda, cart=cart,
+                     fam=r[ix['FAMILIA']] or 'OUTROS', val=val))
 
 def pack(rs, with_vend):
     lojas = sorted({x['loja'] for x in rs}); skus = sorted({x['sku'] for x in rs})
+    fams = sorted({x['fam'] for x in rs}); F = {k: i for i, k in enumerate(fams)}
     cats = sorted({x['cat'] for x in rs}); vends = sorted({x['v'] for x in rs}); sups = sorted({x['sup'] for x in rs})
     redes = {x['loja']: x['rede'] for x in rs}
     L = {k: i for i, k in enumerate(lojas)}; S = {k: i for i, k in enumerate(skus)}
     C = {k: i for i, k in enumerate(cats)}; V = {k: i for i, k in enumerate(vends)}; P = {k: i for i, k in enumerate(sups)}
-    d = [[L[x['loja']], C[x['cat']], S[x['sku']], round(x['meta'], 2), round(x['venda'], 2), round(x['cart'], 2)]
+    # linha: 0 loja,1 cat,2 sku,3 meta cx,4 venda cx,5 cart cx,6 familia,
+    # 7 meta R$,8 venda R$,9 dev R$,10 troca R$,11 carteira R$,12 meta KG,13 venda KG,14 dev+troca KG,15 carteira KG,[16 vend,17 sup]
+    d = [[L[x['loja']], C[x['cat']], S[x['sku']], round(x['meta'], 2), round(x['venda'], 2), round(x['cart'], 2), F[x['fam']]]
+         + [round(v, 2) for v in x["val"]]
          + ([V[x['v']], P[x['sup']]] if with_vend else []) for x in rs]
-    return dict(lojas=lojas, redes=[redes[l] for l in lojas], skus=skus, cats=cats,
+    return dict(fams=fams, lojas=lojas, redes=[redes[l] for l in lojas], skus=skus, cats=cats,
                 vends=vends if with_vend else None, sups=sups if with_vend else None, d=d)
 
 pins_path = PINS_PATH
