@@ -17,6 +17,7 @@ main{max-width:760px;margin:0 auto;padding:12px}
 .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:10px}
 label{display:block;font-size:12px;color:var(--mut);margin:8px 0 4px}
 select,input{width:100%;padding:11px 12px;border:1px solid var(--line);border-radius:9px;font-size:15px;background:var(--card);color:var(--ink)}
+button:disabled{opacity:.6;cursor:wait}
 button{width:100%;padding:12px;border:0;border-radius:9px;background:var(--pri);color:#fff;font-size:15px;font-weight:600;margin-top:12px;cursor:pointer}
 button.sec{background:transparent;color:#fff;border:1px solid rgba(255,255,255,.5);width:auto;padding:6px 12px;margin:0;font-size:13px}
 .err{color:var(--bad);font-size:13px;margin-top:8px;min-height:1em}
@@ -38,22 +39,17 @@ button.sec{background:transparent;color:#fff;border:1px solid rgba(255,255,255,.
 .nums .f.zero b{color:var(--ok)}
 .bar{position:relative;height:7px;background:var(--trk);border-radius:4px;margin-top:8px;overflow:hidden}
 .bar i{position:absolute;left:0;top:0;bottom:0;border-radius:4px}
-.bar u{position:absolute;top:-2px;bottom:-2px;width:2px;background:#333;opacity:.55}
+.bar u{position:absolute;top:-2px;bottom:-2px;width:2px;background:var(--ink);opacity:.6}
 .empty{text-align:center;color:var(--mut);padding:30px 10px}
 .hide{display:none!important}
-.lbusca{position:relative;margin-bottom:6px}
-.sug{position:absolute;left:0;right:0;top:100%;z-index:5;background:var(--card);border:1px solid var(--line);border-radius:9px;box-shadow:0 6px 18px rgba(0,0,0,.12);max-height:280px;overflow:auto}
-.sug div{padding:11px 12px;border-top:1px solid var(--line);font-size:14px;cursor:pointer}.sug div:first-child{border-top:0}
-.sug div:active,.sug div:hover{background:#eef4fb}.sug small{color:var(--mut);display:block;font-size:11px}
-.sug .nada{color:var(--mut);cursor:default}
 .tabs{display:flex;gap:6px;margin-bottom:10px}
-.tabs button{flex:1;margin:0;padding:10px 6px;background:var(--card);color:var(--pri);border:1px solid var(--pri);font-size:13.5px}
+.tabs button{flex:1;margin:0;padding:10px 6px;background:var(--card);color:var(--pri);border:1px solid var(--pri);font-size:12.5px}
 .tabs button.on{background:var(--pri);color:#fff}
 .fam{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px;margin-bottom:10px}
 .fam.tot{border:2px solid var(--pri)}
 .fam .hd{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
 .fam .hd b{font-size:15px}
-.sec{font-size:11px;font-weight:700;color:var(--pri);margin:8px 0 4px;letter-spacing:.3px}
+.sect{font-size:11px;font-weight:700;color:var(--pri);margin:8px 0 4px;letter-spacing:.3px}
 .g3{display:grid;grid-template-columns:repeat(3,1fr);gap:6px 8px}
 .g3 div{font-size:10.5px;color:var(--mut)}
 .g3 b{display:block;font-size:14px;color:var(--ink);white-space:nowrap}
@@ -69,7 +65,6 @@ button.sec{background:transparent;color:#fff;border:1px solid rgba(255,255,255,.
 .ordtr button.on{background:var(--pri);color:#fff}
 .mais{width:100%;margin-top:8px}
 .lojasel{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:13px}
-.tabs button{font-size:12.5px}
 .troca{font-size:11.5px;color:var(--mut);margin-top:8px;border-top:1px dashed var(--line);padding-top:6px}
 footer{max-width:760px;margin:6px auto 24px;padding:0 14px;text-align:center;color:var(--mut);font-size:12.5px}
 footer .by{margin-bottom:8px}footer b{color:var(--ink)}
@@ -100,6 +95,11 @@ body.desk #vTr>.kpis,body.desk #vTr>.ritmo,body.desk #vTr>.ordtr,body.desk #vTr>
 body.desk #vTr>.card{margin:0}
 body.desk .tabs{max-width:620px}
 body.desk #login{max-width:440px;margin:20px auto}
+@media(max-width:760px){
+ body.desk .filtros{grid-template-columns:1fr 1fr}
+ body.desk .filtros .loja,body.desk .filtros #buscaWrap{grid-column:1/-1}
+ body.desk #vTr{grid-template-columns:1fr}
+}
 .leg{font-size:11.5px;color:var(--mut);display:flex;gap:12px;flex-wrap:wrap;margin:0 2px 10px}
 .leg em{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:4px;vertical-align:-1px}
 </style>
@@ -111,8 +111,8 @@ body.desk #login{max-width:440px;margin:20px auto}
 </header>
 <main>
  <section id="login" class="card">
-  <label>Vendedor</label><select id="nome"></select>
-  <label>Senha (6 dígitos)</label><input id="pin" type="password" inputmode="numeric" maxlength="6" autocomplete="off">
+  <label for="nome">Nome</label><select id="nome"></select>
+  <label for="pin">Senha (6 dígitos)</label><input id="pin" type="password" inputmode="numeric" maxlength="6" autocomplete="off">
   <label class="lembrar"><input type="checkbox" id="lembrar" checked> Lembrar senha neste aparelho</label>
   <button id="entrar">Entrar</button>
   <div class="err" id="err"></div>
@@ -121,12 +121,12 @@ body.desk #login{max-width:440px;margin:20px auto}
  <section id="app" class="hide">
   <div class="tabs"><button id="tCx" class="on">📦 Caixas</button><button id="tVal">💰 Valores</button><button id="tTr">🔄 Trocas</button></div>
   <div class="card filtros">
-    <div class="gest hide"><label>Supervisão</label><select id="fSup"></select></div>
-    <div class="gest hide"><label>Vendedor</label><select id="fVend"></select></div>
-    <div><label>Rede</label><select id="fRede"></select></div>
-    <div><label>Categoria</label><select id="fCat"></select></div>
-   <div class="loja"><label>Loja</label><select id="fLoja"></select></div>
-   <div id="buscaWrap"><label>Buscar produto</label>
+    <div class="gest hide"><label for="fSup">Supervisão</label><select id="fSup"></select></div>
+    <div class="gest hide"><label for="fVend">Vendedor</label><select id="fVend"></select></div>
+    <div><label for="fRede">Rede</label><select id="fRede"></select></div>
+    <div><label for="fCat">Categoria</label><select id="fCat"></select></div>
+   <div class="loja"><label for="fLoja">Loja</label><select id="fLoja"></select></div>
+   <div id="buscaWrap"><label for="fBusca">Buscar produto</label>
    <form id="fForm" class="busca"><input id="fBusca" type="search" enterkeyhint="search" autocomplete="off" placeholder="nome ou código (ex.: 2182)"><button type="submit" id="bBusca">Buscar</button></form></div>
   </div>
   <div id="vCx">
@@ -155,89 +155,21 @@ body.desk #login{max-width:440px;margin:20px auto}
 <script>
 const META=/*__META__*/null;
 const $=id=>document.getElementById(id);
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const norm=s=>String(s).normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase();
 const fmt=n=>Math.round(n).toLocaleString('pt-BR');
 const up=n=>Math.ceil(n-1e-9);
-const IDEAL=META.dia/META.dias;
-$('sub').textContent=`Relatório de ${META.data} · dia ${META.dia} de ${META.dias}`;
-$('nome').innerHTML=META.nomes.map(n=>`<option>${n}</option>`).join('');
-try{const u=localStorage.getItem('pm_nome');if(u&&META.nomes.includes(u))$('nome').value=u}catch(e){}
+const brl=n=>(n<0?'-':'')+'R$ '+Math.round(Math.abs(n)).toLocaleString('pt-BR');
+const kg=n=>Math.round(n).toLocaleString('pt-BR');
+const pc=n=>(n*100).toFixed(1).replace('.',',')+'%';
+const IDEAL=META.dias?META.dia/META.dias:0;
+const LS={get:k=>{try{return localStorage.getItem(k)}catch(e){return null}},set:(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}},del:k=>{try{localStorage.removeItem(k)}catch(e){}}};
+const SUB=`Relatório de ${META.data} · dia ${META.dia} de ${META.dias}`;
+// colunas de cada linha de dados (ver build.py)
+const LOJA=0,CAT=1,SKU=2,MCX=3,VCX=4,CCX=5,FAM=6,MR=7,VR=8,DR=9,TR=10,CR=11,MK=12,VK=13,DK=14,CK=15,TSAC=16,VEND=17,SUPV=18;
+let D=null,ABA='cx',ORDTR='r',VERTUDO={l:false,p:false};
 
-const b64=s=>Uint8Array.from(atob(s),c=>c.charCodeAt(0));
-async function abrir(nome,pin){
-  const resp=await fetch(META.files[nome]+'?v='+META.ver,{cache:'no-store'});
-  if(!resp.ok)throw new Error('rede');
-  const b=await resp.json();
-  const base=await crypto.subtle.importKey('raw',new TextEncoder().encode(pin),'PBKDF2',false,['deriveKey']);
-  const key=await crypto.subtle.deriveKey({name:'PBKDF2',salt:b64(b.s),iterations:META.iter,hash:'SHA-256'},base,{name:'AES-GCM',length:256},false,['decrypt']);
-  const pt=await crypto.subtle.decrypt({name:'AES-GCM',iv:b64(b.i)},key,b64(b.c));
-  const txt=await new Response(new Blob([pt]).stream().pipeThrough(new DecompressionStream('deflate'))).text();
-  return JSON.parse(txt);
-}
-let D=null;
-$('entrar').onclick=async()=>{
-  $('err').textContent='Abrindo…';
-  const nome=$('nome').value,pin=$('pin').value.trim();
-  try{D=await abrir(nome,pin)}catch(e){$('err').textContent=e.message==='rede'||e instanceof TypeError?'Sem conexão. Tente de novo.':'Senha incorreta.';return}
-  try{localStorage.setItem('pm_nome',nome);
-    if($('lembrar').checked)localStorage.setItem('pm_pin',JSON.stringify({nome,pin,data:META.data}));else localStorage.removeItem('pm_pin')}catch(e){}
-  $('err').textContent='';$('pin').value='';
-  $('login').classList.add('hide');$('app').classList.remove('hide');$('sair').classList.remove('hide');
-  $('sub').textContent=`${nome} · relatório de ${META.data} · dia ${META.dia} de ${META.dias}`;
-  montar();
-};
-// entrada automática se o PIN foi salvo
-try{const sv=JSON.parse(localStorage.getItem('pm_pin')||'null');
-  if(sv&&META.nomes.includes(sv.nome)){$('nome').value=sv.nome;$('pin').value=sv.pin;$('entrar').click()}}catch(e){}
-$('pin').addEventListener('keydown',e=>{if(e.key==='Enter')$('entrar').click()});
-$('sair').onclick=()=>{D=null;try{localStorage.removeItem('pm_pin')}catch(e){}$('app').classList.add('hide');$('login').classList.remove('hide');$('sair').classList.add('hide');$('lista').innerHTML='';$('sub').textContent=`Relatório de ${META.data} · dia ${META.dia} de ${META.dias}`};
-
-const opt=(arr,todos)=>`<option value="">${todos}</option>`+arr.map(([v,t])=>`<option value="${v}">${t}</option>`).join('');
-function montar(){
-  document.querySelectorAll('.gest').forEach(e=>e.classList.toggle('hide',!D.vends));
-  if(D.vends){$('fVend').innerHTML=opt(D.vends.map((v,i)=>[i,v]),'Todos');$('fSup').innerHTML=opt(D.sups.map((v,i)=>[i,v]),'Todas')}
-  const redes=[...new Set(D.redes)].sort();
-  $('fRede').innerHTML=opt(redes.map(r=>[r,r]),'Todas');
-  ['fSup','fVend','fRede','fCat','fLoja'].forEach(id=>$(id).onchange=()=>{if(id!=='fLoja'&&id!=='fCat')$('fLoja').dataset.keep='';atualizar(id)});
-  $('fBusca').oninput=()=>render();
-  $('tCx').onclick=()=>aba('cx');$('tVal').onclick=()=>aba('val');$('tTr').onclick=()=>aba('tr');
-  $('fForm').onsubmit=e=>{e.preventDefault();$('fBusca').blur();render();$('kMeta').scrollIntoView({behavior:'smooth',block:'start'})};
-  atualizar();
-}
-function base(ignorar){ // linhas filtradas por vendedor e rede
-  const fv=$('fVend').value,fr=$('fRede').value,fs=D.vends?$('fSup').value:'';
-  return D.d.filter(r=>(!D.vends||fv===''||r[17]==fv)&&(fs===''||r[18]==fs)&&(fr===''||D.redes[r[0]]===fr));
-}
-function atualizar(origem){
-  const rs=base();
-  const lojaSel=$('fLoja').value,catSel=$('fCat').value;
-  const lojas=[...new Set(rs.map(r=>r[0]))].sort((a,b)=>D.lojas[a].localeCompare(D.lojas[b]));
-  $('fLoja').innerHTML=opt(lojas.map(i=>[i,D.lojas[i]]),'Todas as lojas');
-  if(lojas.includes(+lojaSel)&&lojaSel!=='')$('fLoja').value=lojaSel;
-  const cats=[...new Set(rs.map(r=>r[1]))].sort((a,b)=>D.cats[a].localeCompare(D.cats[b]));
-  $('fCat').innerHTML=opt(cats.map(i=>[i,D.cats[i]]),'Todas');
-  if(cats.includes(+catSel)&&catSel!=='')$('fCat').value=catSel;
-  render();
-}
-function farol(p){const r=p/IDEAL;return r>=1?'var(--ok)':r>=.8?'var(--warn)':'var(--bad)'}
-function resumo(rs,q){
-  if(q.length){$('resumo').classList.add('hide');return}
-  const m=new Map();
-  const ks=new Map();
-  for(const r of rs){const k=D.redes[r[0]];const o=m.get(k)||{m:0,v:0,c:0,f:0,l:new Set()};o.m+=r[3];o.v+=r[4];o.c+=r[5];o.l.add(r[0]);m.set(k,o);
-    const kk=k+'|'+r[2];const x=ks.get(kk)||{k,m:0,v:0,c:0};x.m+=r[3];x.v+=r[4];x.c+=r[5];ks.set(kk,x)}
-  for(const x of ks.values())m.get(x.k).f+=Math.max(0,up(x.m)-Math.round(x.v)-Math.round(x.c));
-  const ls=[...m.entries()].sort((a,b)=>b[1].m-a[1].m);
-  if(ls.length<2&&$('fLoja').value!==''){$('resumo').classList.add('hide');return}
-  $('resumo').classList.remove('hide');
-  let T={m:0,v:0,c:0,f:0};
-  const linha=(n,o,cls='')=>{const p=o.m?(o.v+o.c)/o.m:0;const f=Math.max(0,o.m-o.v-o.c);return `<tr class="${cls}"><td>${n}</td><td>${fmt(o.m)}</td><td>${fmt(o.v+o.c)}</td><td>${fmt(f)}</td><td><span class="pill" style="background:${farol(p)}">${(p*100).toFixed(0)}%</span></td></tr>`};
-  const body=ls.map(([n,o])=>{T.m+=o.m;T.v+=o.v;T.c+=o.c;return linha(n+` <span style="color:var(--mut);font-size:11px">(${o.l.size})</span>`,o)}).join('');
-  $('resumo').innerHTML=`<h2>Resumo por rede</h2><table class="redes"><tr><th>Rede (lojas)</th><th>Meta cx</th><th>Fat.+cart.</th><th>Falta</th><th>%</th></tr>${body}${ls.length>1?linha('Total',T,'tot'):''}</table>`;
-}
-const cod=k=>(D&&D.cods&&D.cods[k])||'';
-const codTxt=k=>{const c=cod(k);return c+' '+c.replace(/\D/g,'')};
 // ---- tema e layout ----
-const LS={get:k=>{try{return localStorage.getItem(k)}catch(e){return null}},set:(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}}};
 function aplicaTema(t){document.body.classList.toggle('escuro',t==='escuro');$('bTema').textContent=t==='escuro'?'☀️ Claro':'🌙 Escuro'}
 function aplicaLayout(l){document.body.classList.toggle('desk',l==='desk');$('bLayout').textContent=l==='desk'?'📱 Celular':'🖥️ Computador'}
 let TEMA=LS.get('pm_tema')||(window.matchMedia&&matchMedia('(prefers-color-scheme: dark)').matches?'escuro':'claro');
@@ -245,93 +177,229 @@ let LAYOUT=LS.get('pm_layout')||(window.innerWidth>=900?'desk':'cel');
 aplicaTema(TEMA);aplicaLayout(LAYOUT);
 $('bTema').onclick=()=>{TEMA=TEMA==='escuro'?'claro':'escuro';LS.set('pm_tema',TEMA);aplicaTema(TEMA)};
 $('bLayout').onclick=()=>{LAYOUT=LAYOUT==='desk'?'cel':'desk';LS.set('pm_layout',LAYOUT);aplicaLayout(LAYOUT)};
-const norm=s=>s.normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase();
-let ABA='cx';
-function aba(a){ABA=a;[['cx','tCx','vCx'],['val','tVal','vVal'],['tr','tTr','vTr']].forEach(([k,t,v])=>{$(t).classList.toggle('on',a===k);$(v).classList.toggle('hide',a!==k)});
-  $('buscaWrap').classList.toggle('hide',a==='val');render()}
-let ORDTR='r',VERTUDO={l:false,p:false};
+
+// ---- abrir os dados (criptografados com a senha) ----
+const b64=s=>Uint8Array.from(atob(s),c=>c.charCodeAt(0));
+// descompactador próprio, usado quando o navegador (celular antigo) não tem DecompressionStream
+function inflar(z){
+  let p=2,bb=0,bn=0,o=new Uint8Array(Math.max(1024,z.length*6)),n=0;
+  const cabe=k=>{if(n+k>o.length){const t=new Uint8Array(Math.max(o.length*2,n+k));t.set(o);o=t}};
+  const bits=k=>{while(bn<k){if(p>=z.length)throw new Error('inflar');bb|=z[p++]<<bn;bn+=8}const v=bb&((1<<k)-1);bb>>>=k;bn-=k;return v};
+  const tab=l=>{const c=new Uint16Array(16),s=new Uint16Array(l.length),of=new Uint16Array(16);
+    for(let i=0;i<l.length;i++)c[l[i]]++;c[0]=0;for(let i=1;i<16;i++)of[i]=of[i-1]+c[i-1];
+    for(let i=0;i<l.length;i++)if(l[i])s[of[l[i]]++]=i;return{c,s}};
+  const dec=h=>{let code=0,first=0,idx=0;for(let len=1;len<16;len++){code|=bits(1);const cnt=h.c[len];if(code-cnt<first)return h.s[idx+(code-first)];idx+=cnt;first+=cnt;first<<=1;code<<=1}throw new Error('inflar')};
+  const LB=[3,4,5,6,7,8,9,10,11,13,15,17,19,23,27,31,35,43,51,59,67,83,99,115,131,163,195,227,258],LE=[0,0,0,0,0,0,0,0,1,1,1,1,2,2,2,2,3,3,3,3,4,4,4,4,5,5,5,5,0];
+  const DB=[1,2,3,4,5,7,9,13,17,25,33,49,65,97,129,193,257,385,513,769,1025,1537,2049,3073,4097,6145,8193,12289,16385,24577],DE=[0,0,0,0,1,1,2,2,3,3,4,4,5,5,6,6,7,7,8,8,9,9,10,10,11,11,12,12,13,13];
+  const CL=[16,17,18,0,8,7,9,6,10,5,11,4,12,3,13,2,14,1,15];
+  let fim;
+  do{fim=bits(1);const t=bits(2);
+    if(t===0){bb=0;bn=0;const len=z[p]|z[p+1]<<8;p+=4;cabe(len);o.set(z.subarray(p,p+len),n);n+=len;p+=len}
+    else if(t===3)throw new Error('inflar');
+    else{let hl,hd;
+      if(t===1){const l=new Uint8Array(288);l.fill(8,0,144);l.fill(9,144,256);l.fill(7,256,280);l.fill(8,280,288);hl=tab(l);hd=tab(new Uint8Array(30).fill(5))}
+      else{const nl=bits(5)+257,nd=bits(5)+1,nc=bits(4)+4,cl=new Uint8Array(19);for(let i=0;i<nc;i++)cl[CL[i]]=bits(3);
+        const hc=tab(cl),l=new Uint8Array(nl+nd);
+        for(let i=0;i<nl+nd;){const s=dec(hc);if(s<16)l[i++]=s;else{let r,v=0;if(s===16){v=l[i-1];r=3+bits(2)}else if(s===17)r=3+bits(3);else r=11+bits(7);while(r--)l[i++]=v}}
+        hl=tab(l.subarray(0,nl));hd=tab(l.subarray(nl))}
+      for(;;){const s=dec(hl);if(s<256){cabe(1);o[n++]=s}else if(s===256)break;
+        else{const len=LB[s-257]+bits(LE[s-257]),ds=dec(hd),dist=DB[ds]+bits(DE[ds]);if(dist>n)throw new Error('inflar');cabe(len);for(let i=0;i<len;i++,n++)o[n]=o[n-dist]}}
+    }}while(!fim);
+  return o.subarray(0,n);
+}
+async function descompactar(buf){
+  if(typeof DecompressionStream==='function'&&typeof Blob.prototype.stream==='function'){
+    try{return await new Response(new Blob([buf]).stream().pipeThrough(new DecompressionStream('deflate'))).text()}catch(e){}
+  }
+  return new TextDecoder().decode(inflar(new Uint8Array(buf)));
+}
+class Erro extends Error{constructor(tipo){super(tipo);this.tipo=tipo}}
+async function abrir(nome,senha){
+  if(!(window.crypto&&crypto.subtle))throw new Erro('navegador');
+  let b;
+  try{const resp=await fetch(META.files[nome]+'?v='+META.ver,{cache:'no-store'});if(!resp.ok)throw 0;b=await resp.json()}catch(e){throw new Erro('rede')}
+  let pt;
+  try{
+    const base=await crypto.subtle.importKey('raw',new TextEncoder().encode(senha),'PBKDF2',false,['deriveKey']);
+    const key=await crypto.subtle.deriveKey({name:'PBKDF2',salt:b64(b.s),iterations:META.iter,hash:'SHA-256'},base,{name:'AES-GCM',length:256},false,['decrypt']);
+    pt=await crypto.subtle.decrypt({name:'AES-GCM',iv:b64(b.i)},key,b64(b.c));
+  }catch(e){throw new Erro('senha')}
+  try{return JSON.parse(await descompactar(pt))}catch(e){throw new Erro('navegador')}
+}
+const MSG={senha:'Senha incorreta.',rede:'Sem conexão com a internet. Tente de novo.',navegador:'Não foi possível abrir neste navegador. Atualize o navegador (Chrome ou Safari) e tente de novo.'};
+
+// ---- entrar / sair ----
+$('sub').textContent=SUB;
+$('nome').innerHTML=META.nomes.map(n=>`<option>${esc(n)}</option>`).join('');
+{const u=LS.get('pm_nome');if(u&&META.nomes.includes(u))$('nome').value=u}
+let entrando=false;
+async function entrar(auto){
+  if(entrando)return;
+  const nome=$('nome').value,senha=$('pin').value.trim();
+  if(!senha){$('err').textContent='Digite a senha.';return}
+  entrando=true;$('entrar').disabled=true;$('err').textContent='Abrindo…';
+  try{D=await abrir(nome,senha)}
+  catch(e){
+    $('err').textContent=MSG[e.tipo]||MSG.navegador;
+    if(e.tipo==='senha'){LS.del('pm_pin');$('pin').value='';if(!auto)$('pin').focus()}
+    return;
+  }finally{entrando=false;$('entrar').disabled=false}
+  LS.set('pm_nome',nome);
+  if($('lembrar').checked)LS.set('pm_pin',JSON.stringify({nome,pin:senha}));else LS.del('pm_pin');
+  $('err').textContent='';$('pin').value='';
+  $('login').classList.add('hide');$('app').classList.remove('hide');$('sair').classList.remove('hide');
+  $('sub').textContent=`${nome} · relatório de ${META.data} · dia ${META.dia} de ${META.dias}`;
+  montar();
+}
+$('entrar').onclick=()=>entrar(false);
+$('pin').addEventListener('keydown',e=>{if(e.key==='Enter')entrar(false)});
+$('sair').onclick=()=>{
+  D=null;LS.del('pm_pin');
+  ['lista','resumo','vVal','vTr','fLoja','fCat','fRede','fVend','fSup'].forEach(id=>$(id).innerHTML='');
+  $('fBusca').value='';VERTUDO={l:false,p:false};
+  $('app').classList.add('hide');$('login').classList.remove('hide');$('sair').classList.add('hide');$('sub').textContent=SUB;
+};
+
+// ---- filtros ----
+const opt=(arr,todos)=>`<option value="">${esc(todos)}</option>`+arr.map(([v,t])=>`<option value="${esc(v)}">${esc(t)}</option>`).join('');
+const alfa=(a,b)=>a.localeCompare(b,'pt-BR');
+function encher(id,pares,todos){ // recria a lista mantendo a escolha atual quando ela ainda existe
+  const el=$(id),cur=el.value;el.innerHTML=opt(pares,todos);
+  if(cur!==''&&pares.some(([v])=>String(v)===cur))el.value=cur;
+}
+function montar(){
+  const g=!!D.vends;
+  document.querySelectorAll('.gest').forEach(e=>e.classList.toggle('hide',!g));
+  ['fSup','fVend','fRede','fCat','fLoja'].forEach(id=>{$(id).innerHTML='';$(id).onchange=atualizar});
+  if(g)$('fSup').innerHTML=opt(D.sups.map((v,i)=>[i,v]),'Todas');
+  $('fBusca').value='';
+  $('fBusca').oninput=render;
+  $('fForm').onsubmit=e=>{e.preventDefault();$('fBusca').blur();render();(ABA==='tr'?$('vTr'):$('vCx')).scrollIntoView({behavior:'smooth',block:'start'})};
+  $('tCx').onclick=()=>aba('cx');$('tVal').onclick=()=>aba('val');$('tTr').onclick=()=>aba('tr');
+  aba(ABA,true);atualizar();
+}
+function atualizar(){ // cada filtro só oferece o que existe dentro dos filtros anteriores
+  let rs=D.d;
+  if(D.vends){
+    const fs=$('fSup').value;if(fs!=='')rs=rs.filter(r=>r[SUPV]==fs);
+    encher('fVend',[...new Set(rs.map(r=>r[VEND]))].sort((a,b)=>alfa(D.vends[a],D.vends[b])).map(i=>[i,D.vends[i]]),'Todos');
+    const fv=$('fVend').value;if(fv!=='')rs=rs.filter(r=>r[VEND]==fv);
+  }
+  encher('fRede',[...new Set(rs.map(r=>D.redes[r[LOJA]]))].sort(alfa).map(r=>[r,r]),'Todas');
+  const fr=$('fRede').value;if(fr!=='')rs=rs.filter(r=>D.redes[r[LOJA]]===fr);
+  encher('fLoja',[...new Set(rs.map(r=>r[LOJA]))].sort((a,b)=>alfa(D.lojas[a],D.lojas[b])).map(i=>[i,D.lojas[i]]),'Todas as lojas');
+  encher('fCat',[...new Set(rs.map(r=>r[CAT]))].sort((a,b)=>alfa(D.cats[a],D.cats[b])).map(i=>[i,D.cats[i]]),'Todas');
+  render();
+}
+function base(){ // linhas dentro de supervisão, vendedor e rede
+  const fv=D.vends?$('fVend').value:'',fs=D.vends?$('fSup').value:'',fr=$('fRede').value;
+  return D.d.filter(r=>(fv===''||r[VEND]==fv)&&(fs===''||r[SUPV]==fs)&&(fr===''||D.redes[r[LOJA]]===fr));
+}
+const filtradas=()=>{const fl=$('fLoja').value,fc=$('fCat').value;return base().filter(r=>(fl===''||r[LOJA]==fl)&&(fc===''||r[CAT]==fc))};
+const palavras=()=>norm($('fBusca').value).split(/\s+/).filter(Boolean);
+const cod=k=>(D.cods&&D.cods[k])||'';
+const textoSku=(k,cat)=>{const c=cod(k);return norm(D.skus[k]+' '+D.cats[cat]+' '+c+' '+c.replace(/\D/g,''))};
+const farolCls=p=>{if(!IDEAL)return 'ok';const r=p/IDEAL;return r>=1?'ok':r>=.8?'warn':'bad'};
+const farol=p=>`var(--${farolCls(p)})`;
+function aba(a,semRender){ABA=a;[['cx','tCx','vCx'],['val','tVal','vVal'],['tr','tTr','vTr']].forEach(([k,t,v])=>{$(t).classList.toggle('on',a===k);$(v).classList.toggle('hide',a!==k)});
+  $('buscaWrap').classList.toggle('hide',a==='val');if(!semRender)render()}
+function render(){if(!D)return;if(ABA==='val')valores();else if(ABA==='tr')trocas();else caixas()}
+
+// ---- aba Caixas ----
+const faltaCx=(m,v,c)=>Math.max(0,up(m)-Math.round(v)-Math.round(c));
+function resumo(rs,buscando){
+  const el=$('resumo'),m=new Map();
+  for(const r of rs){const k=D.redes[r[LOJA]];const o=m.get(k)||{m:0,v:0,c:0,l:new Set()};o.m+=r[MCX];o.v+=r[VCX];o.c+=r[CCX];o.l.add(r[LOJA]);m.set(k,o)}
+  const ls=[...m.entries()].sort((a,b)=>b[1].m-a[1].m);
+  if(buscando||!ls.length||(ls.length<2&&$('fLoja').value!=='')){el.classList.add('hide');return}
+  el.classList.remove('hide');
+  const T={m:0,v:0,c:0};
+  const linha=(n,o,cls='')=>{const p=o.m?(o.v+o.c)/o.m:1;return `<tr class="${cls}"><td>${n}</td><td>${fmt(up(o.m))}</td><td>${fmt(o.v+o.c)}</td><td>${fmt(faltaCx(o.m,o.v,o.c))}</td><td><span class="pill" style="background:${farol(p)}">${(p*100).toFixed(0)}%</span></td></tr>`};
+  const body=ls.map(([n,o])=>{T.m+=o.m;T.v+=o.v;T.c+=o.c;return linha(esc(n)+` <span style="color:var(--mut);font-size:11px">(${o.l.size})</span>`,o)}).join('');
+  el.innerHTML=`<h2>Resumo por rede</h2><table class="redes"><tr><th>Rede (lojas)</th><th>Meta cx</th><th>Fat.+cart.</th><th>Falta</th><th>%</th></tr>${body}${ls.length>1?linha('Total',T,'tot'):''}</table>`;
+}
+function caixas(){
+  const q=palavras(),umaLoja=$('fLoja').value!=='';
+  const rs=filtradas().filter(r=>r[MCX]||r[VCX]||r[CCX]); // linhas só com R$ (sem caixa) não viram cartão vazio
+  resumo(rs,q.length>0);
+  const by=new Map();
+  for(const r of rs){const k=r[SKU];const o=by.get(k)||{k,cat:r[CAT],m:0,v:0,c:0,l:new Set()};o.m+=r[MCX];o.v+=r[VCX];o.c+=r[CCX];o.l.add(r[LOJA]);by.set(k,o)}
+  let ps=[...by.values()];
+  if(q.length)ps=ps.filter(p=>{const t=textoSku(p.k,p.cat);return q.every(w=>t.includes(w))});
+  let M=0,V=0,C=0;
+  ps.forEach(p=>{p.meta=up(p.m);p.falta=faltaCx(p.m,p.v,p.c);p.pct=p.meta?(p.v+p.c)/p.meta:1;M+=p.m;V+=p.v;C+=p.c});
+  ps.sort((a,b)=>b.falta-a.falta||alfa(D.skus[a.k],D.skus[b.k]));
+  $('kMeta').textContent=fmt(up(M));$('kVenda').textContent=fmt(V);$('kCart').textContent=fmt(C);$('kFalta').textContent=fmt(faltaCx(M,V,C));
+  $('ritmo').innerHTML=`Atingido: <b>${pc(M?(V+C)/M:0)}</b> · ritmo ideal hoje: <b>${pc(IDEAL)}</b> · ideal até agora: <b>${fmt(M*IDEAL)} cx</b>`;
+  if(!ps.length){$('lista').innerHTML=`<div class="empty">${q.length?'Nenhum produto encontrado para essa busca.':'Nenhum produto com meta nesse filtro.'}</div>`;return}
+  $('lista').innerHTML=ps.map(p=>{
+    const cls=p.meta===0?'ok':farolCls(p.pct),c=cod(p.k);
+    return `<div class="prod ${cls}"><div class="n">${esc(D.skus[p.k])}</div><div class="c">${c?'cód. '+esc(c)+' · ':''}${esc(D.cats[p.cat])}${umaLoja?'':` · ${p.l.size} loja${p.l.size>1?'s':''}`}</div>
+    <div class="nums"><div><b>${fmt(p.meta)}</b>meta</div><div><b>${fmt(p.v)}</b>faturado</div><div><b>${fmt(p.c)}</b>carteira</div><div class="f ${p.falta?'':'zero'}"><b>${p.falta?fmt(p.falta):'✓'}</b>falta</div></div>
+    <div class="bar"><i style="width:${Math.min(100,p.pct*100)}%;background:var(--${cls})"></i><u style="left:${IDEAL*100}%"></u></div></div>`}).join('');
+}
+
+// ---- aba Valores (igual à aba FAT+VOL do Excel) ----
+const ORD=['MIX','UHT LITRO','IOGURTE','MUSSARELA','LEITE EM PO','BEBIDA LÁCTEA'];
+function valores(){
+  const rs=filtradas();
+  const m=new Map(),z=()=>({mr:0,vr:0,dr:0,tr:0,cr:0,mk:0,vk:0,dk:0,ck:0}),T=z();
+  for(const r of rs){const k=D.fams[r[FAM]];const o=m.get(k)||z();
+    for(const x of [o,T]){x.mr+=r[MR];x.vr+=r[VR];x.dr+=r[DR];x.tr+=r[TR]+r[TSAC];x.cr+=r[CR];x.mk+=r[MK];x.vk+=r[VK];x.dk+=r[DK];x.ck+=r[CK]}
+    m.set(k,o)}
+  const card=(nome,o,tot)=>{
+    const lr=o.vr-o.dr-o.tr,lk=o.vk-o.dk,ar=o.mr?lr/o.mr:0,fr=o.mr?(lr+o.cr)/o.mr:0,ak=o.mk?lk/o.mk:0,fk=o.mk?(lk+o.ck)/o.mk:0;
+    return `<div class="fam ${tot?'tot':''}"><div class="hd"><b>${esc(nome)}</b><span class="pill" style="background:${farol(fr)}">${pc(fr)} fat.+cart.</span></div>
+    <div class="sect">VALOR (R$)</div><div class="g3">
+     <div><b>${brl(o.mr)}</b>Meta</div><div><b>${brl(o.vr)}</b>Venda</div><div class="${lr<0?'neg':''}"><b>${brl(lr)}</b>Venda líquida</div>
+     <div><b style="color:${farol(ar)}">${pc(ar)}</b>% Atingido</div><div><b>${brl(o.cr)}</b>Carteira</div><div class="neg"><b>${brl(Math.max(0,o.mr-lr-o.cr))}</b>Falta</div></div>
+    <div class="sect">VOLUME (KG)</div><div class="g3">
+     <div><b>${kg(o.mk)}</b>Meta</div><div><b>${kg(o.vk)}</b>Venda</div><div class="${lk<0?'neg':''}"><b>${kg(lk)}</b>Venda líquida</div>
+     <div><b style="color:${farol(ak)}">${pc(ak)}</b>% Atingido</div><div><b>${kg(o.ck)}</b>Carteira</div><div><b style="color:${farol(fk)}">${pc(fk)}</b>% Fat.+cart.</div></div>
+    <div class="troca">Troca total: <b>${brl(o.tr)}</b> · Devolução: <b>${brl(o.dr)}</b></div></div>`};
+  const fams=[...m.keys()].sort((a,b)=>{const i=ORD.indexOf(a),j=ORD.indexOf(b);return (i<0?99:i)-(j<0?99:j)||alfa(a,b)});
+  $('vVal').innerHTML=rs.length?`<div class="ritmo">Ritmo ideal hoje: <b>${pc(IDEAL)}</b> (dia ${META.dia} de ${META.dias}) · venda líquida = venda − devolução − troca</div>`+card('TOTAL GERAL',T,true)+fams.map(f=>card(f,m.get(f))).join(''):'<div class="empty">Sem dados nesse filtro.</div>';
+}
+
+// ---- aba Trocas (só MIX e IOGURTE; troca SAC não entra) ----
 function trocas(){
-  const fl=$('fLoja').value,fc=$('fCat').value,q=norm($('fBusca').value).split(/\s+/).filter(Boolean);
+  const fl=$('fLoja').value,fc=$('fCat').value,q=palavras();
   const okF=new Set(D.fams.map((f,i)=>['MIX','IOGURTE'].includes(f)?i:-1).filter(i=>i>=0));
-  let rs=base().filter(r=>okF.has(r[6])&&(fc===''||r[1]==fc));
-  if(q.length)rs=rs.filter(r=>{const t=norm(D.skus[r[2]]+' '+D.cats[r[1]]+' '+codTxt(r[2]));return q.every(w=>t.includes(w))});
-  const rl=fl===''?rs:rs.filter(r=>r[0]==fl);
+  let rs=base().filter(r=>okF.has(r[FAM])&&(fc===''||r[CAT]==fc));
+  if(q.length)rs=rs.filter(r=>{const t=textoSku(r[SKU],r[CAT]);return q.every(w=>t.includes(w))});
+  const rl=fl===''?rs:rs.filter(r=>r[LOJA]==fl);
   const pct=(t,v)=>v>0?t/v:(t>0?Infinity:0);
   const fp=x=>x===Infinity?'sem venda':pc(x);
   const tot={v:0,t:0},fam={};
-  for(const r of rl){tot.v+=r[8];tot.t+=r[10];const f=D.fams[r[6]];fam[f]=fam[f]||{v:0,t:0};fam[f].v+=r[8];fam[f].t+=r[10]}
-  const agg=(arr,key)=>{const m=new Map();for(const r of arr){const k=key(r);const o=m.get(k)||{k,v:0,t:0,f:D.fams[r[6]]};o.v+=r[8];o.t+=r[10];m.set(k,o)}
+  for(const r of rl){tot.v+=r[VR];tot.t+=r[TR];const f=D.fams[r[FAM]];fam[f]=fam[f]||{v:0,t:0};fam[f].v+=r[VR];fam[f].t+=r[TR]}
+  const agg=(arr,key)=>{const m=new Map();for(const r of arr){const k=key(r);const o=m.get(k)||{k,v:0,t:0,f:D.fams[r[FAM]]};o.v+=r[VR];o.t+=r[TR];m.set(k,o)}
     return [...m.values()].filter(o=>o.t>0).map(o=>({...o,p:pct(o.t,o.v)}))};
   const ord=a=>a.sort((x,y)=>ORDTR==='r'?y.t-x.t:((y.p===Infinity?-1:y.p)-(x.p===Infinity?-1:x.p)||y.t-x.t));
-  const prods=ord(agg(rl,r=>r[2]));
-  const lojas=fl===''?ord(agg(rs,r=>r[0])):[];
+  const prods=ord(agg(rl,r=>r[SKU]));
+  const lojas=fl===''?ord(agg(rs,r=>r[LOJA])):[];
   const maxT=Math.max(1,...prods.map(o=>o.t)),maxL=Math.max(1,...lojas.map(o=>o.t));
-  const linha=(nome,sub,o,max,click)=>`<div class="trl" ${click?`data-l="${click}"`:''}><div class="trn">${nome}${sub?`<small>${sub}</small>`:''}</div>
+  const linha=(nome,sub,o,max,click)=>`<div class="trl" ${click!==undefined?`data-l="${click}"`:''}><div class="trn">${esc(nome)}${sub?`<small>${esc(sub)}</small>`:''}</div>
     <div class="trv"><b>${brl(o.t)}</b><span>${fp(o.p)}</span></div><div class="bar"><i style="width:${o.t/max*100}%;background:var(--bad)"></i></div>
-    <div class="trs">venda ${brl(o.v)}${click?' · toque para ver os produtos ›':''}</div></div>`;
+    <div class="trs">venda ${brl(o.v)}${click!==undefined?' · toque para ver os produtos ›':''}</div></div>`;
   const lim=(a,k,n)=>VERTUDO[k]?a:a.slice(0,n);
   let h=`<div class="kpis k3"><div class="kpi"><b>${brl(tot.v)}</b><span>Venda MIX+IOG</span></div><div class="kpi falta"><b>${brl(tot.t)}</b><span>Troca R$</span></div><div class="kpi falta"><b>${fp(pct(tot.t,tot.v))}</b><span>% de troca</span></div></div>
   <div class="ritmo">Só famílias <b>MIX</b> e <b>IOGURTE</b> · % troca = troca ÷ venda R$ (troca SAC não entra)${['MIX','IOGURTE'].map(f=>fam[f]?` · ${f}: <b>${fp(pct(fam[f].t,fam[f].v))}</b>`:'').join('')}</div>
   <div class="ordtr">Ordenar por: <button data-o="r" class="${ORDTR==='r'?'on':''}">Maior troca R$</button><button data-o="p" class="${ORDTR==='p'?'on':''}">Maior % troca</button></div>`;
-  if(fl!=='')h+=`<div class="card lojasel"><div>Loja: <b>${D.lojas[+fl]}</b></div><button id="trVolta">‹ Ver todas as lojas</button></div>`;
-  else h+=`<div class="card"><h2>Lojas que mais trocam (${lojas.length})</h2>${lojas.length?lim(lojas,'l',15).map(o=>linha(D.lojas[o.k],D.redes[o.k],o,maxL,String(o.k))).join(''):'<div class="empty">Nenhuma troca.</div>'}
+  if(fl!=='')h+=`<div class="card lojasel"><div>Loja: <b>${esc(D.lojas[+fl])}</b></div><button id="trVolta">‹ Ver todas as lojas</button></div>`;
+  else h+=`<div class="card"><h2>Lojas que mais trocam (${lojas.length})</h2>${lojas.length?lim(lojas,'l',15).map(o=>linha(D.lojas[o.k],D.redes[o.k],o,maxL,o.k)).join(''):'<div class="empty">Nenhuma troca.</div>'}
     ${lojas.length>15?`<button class="mais" data-m="l">${VERTUDO.l?'Mostrar menos':'Mostrar todas'}</button>`:''}</div>`;
   h+=`<div class="card"><h2>Produtos que mais trocam${fl!==''?' nesta loja':''} (${prods.length})</h2>${prods.length?lim(prods,'p',20).map(o=>linha(D.skus[o.k],o.f+(cod(o.k)?' · cód. '+cod(o.k):''),o,maxT)).join(''):'<div class="empty">Nenhuma troca.</div>'}
     ${prods.length>20?`<button class="mais" data-m="p">${VERTUDO.p?'Mostrar menos':'Mostrar todos'}</button>`:''}</div>`;
-  $('vTr').innerHTML=h;
-  $('vTr').querySelectorAll('[data-l]').forEach(e=>e.onclick=()=>{$('fLoja').value=e.dataset.l;render();$('vTr').scrollIntoView({behavior:'smooth'})});
-  $('vTr').querySelectorAll('[data-o]').forEach(e=>e.onclick=()=>{ORDTR=e.dataset.o;render()});
-  $('vTr').querySelectorAll('[data-m]').forEach(e=>e.onclick=()=>{VERTUDO[e.dataset.m]=!VERTUDO[e.dataset.m];render()});
+  const el=$('vTr');el.innerHTML=h;
+  el.querySelectorAll('[data-l]').forEach(e=>e.onclick=()=>{$('fLoja').value=e.dataset.l;render();el.scrollIntoView({behavior:'smooth'})});
+  el.querySelectorAll('[data-o]').forEach(e=>e.onclick=()=>{ORDTR=e.dataset.o;render()});
+  el.querySelectorAll('[data-m]').forEach(e=>e.onclick=()=>{VERTUDO[e.dataset.m]=!VERTUDO[e.dataset.m];render()});
   const v=$('trVolta');if(v)v.onclick=()=>{$('fLoja').value='';render()};
 }
-const brl=n=>(n<0?'-':'')+'R$ '+Math.round(Math.abs(n)).toLocaleString('pt-BR');
-const kg=n=>Math.round(n).toLocaleString('pt-BR');
-const pc=n=>(n*100).toFixed(1).replace('.',',')+'%';
-const ORD=['MIX','UHT LITRO','IOGURTE','MUSSARELA','LEITE EM PO','BEBIDA LÁCTEA'];
-function valores(){
-  const fl=$('fLoja').value,fc=$('fCat').value;
-  const rs=base().filter(r=>(fl===''||r[0]==fl)&&(fc===''||r[1]==fc));
-  const m=new Map(),z=()=>({mr:0,vr:0,dr:0,tr:0,cr:0,mk:0,vk:0,dk:0,ck:0});const T=z();
-  for(const r of rs){const k=D.fams[r[6]];const o=m.get(k)||z();
-    [[o,1],[T,1]].forEach(([x])=>{x.mr+=r[7];x.vr+=r[8];x.dr+=r[9];x.tr+=r[10]+r[16];x.cr+=r[11];x.mk+=r[12];x.vk+=r[13];x.dk+=r[14];x.ck+=r[15]});m.set(k,o)}
-  const card=(nome,o,tot)=>{
-    const lr=o.vr-o.dr-o.tr,lk=o.vk-o.dk,ar=o.mr?lr/o.mr:0,fr=o.mr?(lr+o.cr)/o.mr:0,ak=o.mk?lk/o.mk:0,fk=o.mk?(lk+o.ck)/o.mk:0;
-    return `<div class="fam ${tot?'tot':''}"><div class="hd"><b>${nome}</b><span class="pill" style="background:${farol(fr)}">${pc(fr)} fat.+cart.</span></div>
-    <div class="sec">VALOR (R$)</div><div class="g3">
-     <div><b>${brl(o.mr)}</b>Meta</div><div><b>${brl(o.vr)}</b>Venda</div><div class="${lr<0?'neg':''}"><b>${brl(lr)}</b>Venda líquida</div>
-     <div><b style="color:${farol(ar)}">${pc(ar)}</b>% Atingido</div><div><b>${brl(o.cr)}</b>Carteira</div><div class="neg"><b>${brl(Math.max(0,o.mr-lr-o.cr))}</b>Falta</div></div>
-    <div class="sec">VOLUME (KG)</div><div class="g3">
-     <div><b>${kg(o.mk)}</b>Meta</div><div><b>${kg(o.vk)}</b>Venda</div><div class="${lk<0?'neg':''}"><b>${kg(lk)}</b>Venda líquida</div>
-     <div><b style="color:${farol(ak)}">${pc(ak)}</b>% Atingido</div><div><b>${kg(o.ck)}</b>Carteira</div><div><b style="color:${farol(fk)}">${pc(fk)}</b>% Fat.+cart.</div></div>
-    <div class="troca">Troca total: <b>${brl(o.tr)}</b> · Devolução: <b>${brl(o.dr)}</b></div></div>`};
-  const fams=[...m.keys()].sort((a,b)=>{const i=ORD.indexOf(a),j=ORD.indexOf(b);return (i<0?99:i)-(j<0?99:j)||a.localeCompare(b)});
-  $('vVal').innerHTML=rs.length?`<div class="ritmo">Ritmo ideal hoje: <b>${pc(IDEAL)}</b> (dia ${META.dia} de ${META.dias}) · venda líquida = venda − devolução − troca</div>`+card('TOTAL GERAL',T,true)+fams.map(f=>card(f,m.get(f))).join(''):'<div class="empty">Sem dados nesse filtro.</div>';
-}
-function render(){
-  if(ABA==='val'){valores();return}
-  if(ABA==='tr'){trocas();return}
-  const fl=$('fLoja').value,fc=$('fCat').value,q=norm($('fBusca').value).split(/\s+/).filter(Boolean);
-  const rs=base().filter(r=>(fl===''||r[0]==fl)&&(fc===''||r[1]==fc));
-  resumo(rs,q);
-  const by=new Map();
-  for(const r of rs){const k=r[2];const o=by.get(k)||{k,sku:D.skus[k],cod:cod(k),cat:D.cats[r[1]],m:0,v:0,c:0,l:new Set()};o.m+=r[3];o.v+=r[4];o.c+=r[5];o.l.add(r[0]);by.set(k,o)}
-  let ps=[...by.values()];
-  if(q.length)ps=ps.filter(p=>{const t=norm(p.sku+' '+p.cat+' '+codTxt(p.k));return q.every(w=>t.includes(w))});
-  let M=0,V=0,C=0,F=0;
-  ps.forEach(p=>{p.meta=up(p.m);p.falta=Math.max(0,p.meta-Math.round(p.v)-Math.round(p.c));p.pct=p.meta?(p.v+p.c)/p.meta:1;M+=p.m;V+=p.v;C+=p.c;F+=p.falta});
-  ps.sort((a,b)=>b.falta-a.falta||a.sku.localeCompare(b.sku));
-  $('kMeta').textContent=fmt(M);$('kVenda').textContent=fmt(V);$('kCart').textContent=fmt(C);$('kFalta').textContent=fmt(Math.max(0,M-V-C));
-  const pctT=M?(V+C)/M:0;
-  $('ritmo').innerHTML=`Atingido: <b>${(pctT*100).toFixed(1).replace('.',',')}%</b> · ritmo ideal hoje: <b>${(IDEAL*100).toFixed(1).replace('.',',')}%</b> · ideal até agora: <b>${fmt(M*IDEAL)} cx</b>`;
-  if(!ps.length){$('lista').innerHTML='<div class="empty">Nenhum produto com meta nesse filtro.</div>';return}
-  const umaLoja=fl!=='';
-  $('lista').innerHTML=ps.map(p=>{
-    const r=p.pct/IDEAL, cls=p.meta===0?'ok':r>=1?'ok':r>=.8?'warn':'bad';
-    const w=Math.min(100,p.pct*100), col=cls==='ok'?'var(--ok)':cls==='warn'?'var(--warn)':'var(--bad)';
-    return `<div class="prod ${cls}"><div class="n">${p.sku}</div><div class="c">${p.cod?'cód. '+p.cod+' · ':''}${p.cat}${umaLoja?'':` · ${p.l.size} loja${p.l.size>1?'s':''}`}</div>
-    <div class="nums"><div><b>${fmt(p.meta)}</b>meta</div><div><b>${fmt(p.v)}</b>faturado</div><div><b>${fmt(p.c)}</b>carteira</div><div class="f ${p.falta?'':'zero'}"><b>${p.falta?fmt(p.falta):'✓'}</b>falta</div></div>
-    <div class="bar"><i style="width:${w}%;background:${col}"></i><u style="left:${IDEAL*100}%"></u></div></div>`}).join('');
-}
+
+// ---- entrada automática quando a senha está salva neste aparelho ----
+try{const sv=JSON.parse(LS.get('pm_pin')||'null');
+  if(sv&&sv.pin&&META.nomes.includes(sv.nome)){$('nome').value=sv.nome;$('pin').value=sv.pin;entrar(true)}}catch(e){LS.del('pm_pin')}
 </script>
 </body>
 </html>
