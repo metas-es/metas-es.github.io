@@ -122,7 +122,6 @@ h2{font-size:14px;margin:0 0 6px}
 </footer>
 <script>
 const META=/*__META__*/null;
-const BLOBS=/*__BLOBS__*/null;
 const $=id=>document.getElementById(id);
 const fmt=n=>Math.round(n).toLocaleString('pt-BR');
 const up=n=>Math.ceil(n-1e-9);
@@ -133,17 +132,20 @@ try{const u=localStorage.getItem('pm_nome');if(u&&META.nomes.includes(u))$('nome
 
 const b64=s=>Uint8Array.from(atob(s),c=>c.charCodeAt(0));
 async function abrir(nome,pin){
-  const b=BLOBS[nome];
+  const resp=await fetch(META.files[nome]+'?v='+META.ver,{cache:'no-store'});
+  if(!resp.ok)throw new Error('rede');
+  const b=await resp.json();
   const base=await crypto.subtle.importKey('raw',new TextEncoder().encode(pin),'PBKDF2',false,['deriveKey']);
   const key=await crypto.subtle.deriveKey({name:'PBKDF2',salt:b64(b.s),iterations:META.iter,hash:'SHA-256'},base,{name:'AES-GCM',length:256},false,['decrypt']);
   const pt=await crypto.subtle.decrypt({name:'AES-GCM',iv:b64(b.i)},key,b64(b.c));
-  return JSON.parse(new TextDecoder().decode(pt));
+  const txt=await new Response(new Blob([pt]).stream().pipeThrough(new DecompressionStream('deflate'))).text();
+  return JSON.parse(txt);
 }
 let D=null;
 $('entrar').onclick=async()=>{
   $('err').textContent='Abrindo…';
   const nome=$('nome').value,pin=$('pin').value.trim();
-  try{D=await abrir(nome,pin)}catch(e){$('err').textContent='PIN incorreto.';return}
+  try{D=await abrir(nome,pin)}catch(e){$('err').textContent=e.message==='rede'||e instanceof TypeError?'Sem conexão. Tente de novo.':'PIN incorreto.';return}
   try{localStorage.setItem('pm_nome',nome);
     if($('lembrar').checked)localStorage.setItem('pm_pin',JSON.stringify({nome,pin,data:META.data}));else localStorage.removeItem('pm_pin')}catch(e){}
   $('err').textContent='';$('pin').value='';

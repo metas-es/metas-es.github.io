@@ -4,4 +4,4 @@
 Os PINs NAO ficam aqui (estao guardados na skill metas-es do Claude).
 
     soffice --headless --convert-to xlsx Relatorio.xlsb
-    python3 -I ferramenta/build.py Relatorio.xlsx 09/11/2026 pins.json index.html
+    python3 -I ferramenta/build.py Relatorio.xlsx 09/11/2026 pins.json index.html   # gera index.html + pasta dados/

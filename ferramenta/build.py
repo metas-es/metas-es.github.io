@@ -1,14 +1,16 @@
 """Gera o Painel de Metas (Regional ES - Alex Portes) a partir do Relatório de Vendas LPA.
 Uso: python3 -I build.py <relatorio.xlsx> <data dd/mm/aaaa> <pins.json> <saida index.html>
 """
-import sys, json, os, re, math, base64, hashlib, secrets
+import sys, zlib, json, os, re, math, base64, hashlib, secrets
 import openpyxl
 from cryptography.hazmat.primitives.ciphers.aead import AESGCM
 
 SRC, DATA_REL, PINS_PATH, OUT = sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4]
 HERE = os.path.dirname(os.path.abspath(__file__))
 SUP = 'ALEX PORTES'
-SUPS = {'ALEX PORTES', 'BIANCA RICCI'}   # supervisões incluídas no painel
+REGIONAL = 'REGIONAL ES'
+GERAL = ['ALEX PORTES', 'MARCELO FIALHO']          # acesso à regional inteira
+SUPS_ACESSO = ['BIANCA RICCI', 'LEONARDO JUNCA', 'MOYSES BADARO']  # cada um vê só a própria supervisão
 ITER = 250000
 
 wb = openpyxl.load_workbook(SRC, read_only=True, data_only=True)
@@ -30,11 +32,10 @@ def nome_sku(s):
 
 raw = list(it)
 # vendedores da equipe = quem aparece na supervisão do Alex; pega TODAS as lojas/redes deles (qualquer supervisão)
-VEND = {r[ix['VENDEDOR']] for r in raw if r[ix['SUPERVISÃO']] in SUPS}
 rows = []
 for r in raw:
+    if r[ix['REGIONAL']] != REGIONAL: continue
     vend = r[ix['VENDEDOR']]
-    if vend not in VEND: continue
     meta, venda, cart = num(r[ix['META CAIXA']]), num(r[ix['VENDA FAT CAIXA']]), num(r[ix['CARTEIRA - CX']])
     val = [num(r[ix['META R$']]), num(r[ix['VENDA R$']]),
            num(r[ix['DEV R$']]) + num(r[ix['DEV SAC R$']]), num(r[ix['TROCA R$']]) + num(r[ix['TROCA SAC R$']]),
@@ -64,28 +65,38 @@ def pack(rs, with_vend):
 
 pins_path = PINS_PATH
 pins = json.load(open(pins_path)) if os.path.exists(pins_path) else {}
-GER = 'MARCELO FIALHO'
 vendedores = sorted({x['v'] for x in rows if not x['v'].startswith(SUP) and not str(x['v']).startswith('INATIVO')})
-for v in vendedores + [SUP, GER]:
+for v in vendedores + GERAL + SUPS_ACESSO:
     if v not in pins: pins[v] = f"{secrets.randbelow(900000) + 100000}"
 json.dump(pins, open(pins_path, 'w'), ensure_ascii=False, indent=1)
 
 def enc(obj, pin):
     salt, iv = secrets.token_bytes(16), secrets.token_bytes(12)
     key = hashlib.pbkdf2_hmac('sha256', pin.encode(), salt, ITER, 32)
-    ct = AESGCM(key).encrypt(iv, json.dumps(obj, ensure_ascii=False, separators=(',', ':')).encode(), None)
+    raw = zlib.compress(json.dumps(obj, ensure_ascii=False, separators=(',', ':')).encode(), 9)
+    ct = AESGCM(key).encrypt(iv, raw, None)
     b = lambda x: base64.b64encode(x).decode()
     return dict(s=b(salt), i=b(iv), c=b(ct))
 
 blobs = {}
 for v in vendedores:
     blobs[v] = enc(pack([x for x in rows if x['v'] == v], False), pins[v])
-blobs[SUP + ' (supervisor)'] = enc(pack(rows, True), pins[SUP])
-blobs[GER + ' (gerente)'] = enc(pack(rows, True), pins[GER])
+blobs['ALEX PORTES (supervisor)'] = enc(pack(rows, True), pins['ALEX PORTES'])
+blobs['MARCELO FIALHO (gerente)'] = enc(pack(rows, True), pins['MARCELO FIALHO'])
+for sp in SUPS_ACESSO:
+    blobs[sp + ' (supervisor)'] = enc(pack([x for x in rows if x['sup'] == sp], True), pins[sp])
 
-meta_pub = dict(data=DATA_REL, dia=dia, dias=dias, iter=ITER, nomes=list(blobs.keys()))
+outdir = os.path.dirname(os.path.abspath(OUT)); ddir = os.path.join(outdir, 'dados')
+os.makedirs(ddir, exist_ok=True)
+for f in os.listdir(ddir): os.remove(os.path.join(ddir, f))
+files = {}
+for i, (nome, b) in enumerate(blobs.items()):
+    fn = f'd{i:02d}.json'; files[nome] = 'dados/' + fn
+    json.dump(b, open(os.path.join(ddir, fn), 'w'))
+ordem = sorted(blobs, key=lambda n: (('(' in n), n))   # vendedores primeiro, depois gestão
+meta_pub = dict(data=DATA_REL, dia=dia, dias=dias, iter=ITER, nomes=ordem, files=files, ver=secrets.token_hex(4))
 html = open(os.path.join(HERE, 'template.html'), encoding='utf-8').read()
 html = html.replace('/*__META__*/null', json.dumps(meta_pub, ensure_ascii=False)) \
-           .replace('/*__BLOBS__*/null', json.dumps(blobs))
+           
 open(OUT, 'w', encoding='utf-8').write(html)
-print('linhas', len(rows), 'vendedores', len(vendedores), 'dia', dia, '/', dias)
+print('linhas', len(rows), 'vendedores', len(vendedores), 'acessos', len(blobs), 'dia', dia, '/', dias)
