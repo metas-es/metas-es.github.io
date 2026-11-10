@@ -38,11 +38,12 @@ for r in raw:
     vend = r[ix['VENDEDOR']]
     meta, venda, cart = num(r[ix['META CAIXA']]), num(r[ix['VENDA FAT CAIXA']]), num(r[ix['CARTEIRA - CX']])
     val = [num(r[ix['META R$']]), num(r[ix['VENDA R$']]),
-           num(r[ix['DEV R$']]) + num(r[ix['DEV SAC R$']]), num(r[ix['TROCA R$']]) + num(r[ix['TROCA SAC R$']]),
+           num(r[ix['DEV R$']]) + num(r[ix['DEV SAC R$']]), num(r[ix['TROCA R$']]),
            num(r[ix['PEDIDOS ABERTOS R$']]),
            num(r[ix['META KG']]), num(r[ix['VENDA KG']]),
            num(r[ix['DEV KG']]) + num(r[ix['DEV SAC KG']]) + num(r[ix['TROCA KG']]) + num(r[ix['TROCA SAC KG']]),
-           num(r[ix['PEDIDOS ABERTOS KG']])]
+           num(r[ix['PEDIDOS ABERTOS KG']]),
+           num(r[ix['TROCA SAC R$']])]
     if meta == 0 and venda == 0 and cart == 0 and not any(val): continue
     rows.append(dict(v=vend if vend != SUP else 'ALEX PORTES (CDs / carga fechada)', sup=r[ix['SUPERVISÃO']], rede=r[ix['REDE']], loja=r[ix['LOJA']], cat=r[ix['CATEGORIA']],
                      sku=nome_sku(r[ix['SKU']]), meta=meta, venda=venda, cart=cart,
@@ -56,7 +57,7 @@ def pack(rs, with_vend):
     L = {k: i for i, k in enumerate(lojas)}; S = {k: i for i, k in enumerate(skus)}
     C = {k: i for i, k in enumerate(cats)}; V = {k: i for i, k in enumerate(vends)}; P = {k: i for i, k in enumerate(sups)}
     # linha: 0 loja,1 cat,2 sku,3 meta cx,4 venda cx,5 cart cx,6 familia,
-    # 7 meta R$,8 venda R$,9 dev R$,10 troca R$,11 carteira R$,12 meta KG,13 venda KG,14 dev+troca KG,15 carteira KG,[16 vend,17 sup]
+    # 7 meta R$,8 venda R$,9 dev R$,10 troca R$ (sem SAC),11 carteira R$,12 meta KG,13 venda KG,14 dev+troca KG,15 carteira KG,16 troca SAC R$,[17 vend,18 sup]
     d = [[L[x['loja']], C[x['cat']], S[x['sku']], round(x['meta'], 2), round(x['venda'], 2), round(x['cart'], 2), F[x['fam']]]
          + [round(v, 2) for v in x["val"]]
          + ([V[x['v']], P[x['sup']]] if with_vend else []) for x in rs]

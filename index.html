@@ -134,7 +134,7 @@ h2{font-size:14px;margin:0 0 6px}
  </details>
 </footer>
 <script>
-const META={"data": "09/11/2026", "dia": 8, "dias": 30, "iter": 250000, "nomes": ["ANDRE COQUI", "ANTONIO BORG", "BIANCA CYNTH", "BRENDA SOUZA", "CARLOS LACER", "EDSAN MARA", "ELIEZER FRAG", "IARA ALICE", "IGOR ZAMPIRO", "IRINEU COUTI", "JADSON RAMOS", "JOAO LACERDA", "JONATAS IZID", "JULIANO", "JUNIOR PAULO", "KETELLIN M", "LEONARDO JUN", "LUIZ SAMORA", "MAICON LUZZI", "MARIA APAREC", "MOYSES CARVA", "SERGIO MEND", "SILVIA H SAN", "SILVIA MARTI", "VITOR ARAUJO", "ALEX PORTES (supervisor)", "BIANCA RICCI (supervisor)", "LEONARDO JUNCA (supervisor)", "MARCELO FIALHO (gerente)", "MOYSES BADARO (supervisor)"], "files": {"ANDRE COQUI": "dados/d00.json", "ANTONIO BORG": "dados/d01.json", "BIANCA CYNTH": "dados/d02.json", "BRENDA SOUZA": "dados/d03.json", "CARLOS LACER": "dados/d04.json", "EDSAN MARA": "dados/d05.json", "ELIEZER FRAG": "dados/d06.json", "IARA ALICE": "dados/d07.json", "IGOR ZAMPIRO": "dados/d08.json", "IRINEU COUTI": "dados/d09.json", "JADSON RAMOS": "dados/d10.json", "JOAO LACERDA": "dados/d11.json", "JONATAS IZID": "dados/d12.json", "JULIANO": "dados/d13.json", "JUNIOR PAULO": "dados/d14.json", "KETELLIN M": "dados/d15.json", "LEONARDO JUN": "dados/d16.json", "LUIZ SAMORA": "dados/d17.json", "MAICON LUZZI": "dados/d18.json", "MARIA APAREC": "dados/d19.json", "MOYSES CARVA": "dados/d20.json", "SERGIO MEND": "dados/d21.json", "SILVIA H SAN": "dados/d22.json", "SILVIA MARTI": "dados/d23.json", "VITOR ARAUJO": "dados/d24.json", "ALEX PORTES (supervisor)": "dados/d25.json", "MARCELO FIALHO (gerente)": "dados/d26.json", "BIANCA RICCI (supervisor)": "dados/d27.json", "LEONARDO JUNCA (supervisor)": "dados/d28.json", "MOYSES BADARO (supervisor)": "dados/d29.json"}, "ver": "20dbe427"};
+const META={"data": "09/11/2026", "dia": 8, "dias": 30, "iter": 250000, "nomes": ["ANDRE COQUI", "ANTONIO BORG", "BIANCA CYNTH", "BRENDA SOUZA", "CARLOS LACER", "EDSAN MARA", "ELIEZER FRAG", "IARA ALICE", "IGOR ZAMPIRO", "IRINEU COUTI", "JADSON RAMOS", "JOAO LACERDA", "JONATAS IZID", "JULIANO", "JUNIOR PAULO", "KETELLIN M", "LEONARDO JUN", "LUIZ SAMORA", "MAICON LUZZI", "MARIA APAREC", "MOYSES CARVA", "SERGIO MEND", "SILVIA H SAN", "SILVIA MARTI", "VITOR ARAUJO", "ALEX PORTES (supervisor)", "BIANCA RICCI (supervisor)", "LEONARDO JUNCA (supervisor)", "MARCELO FIALHO (gerente)", "MOYSES BADARO (supervisor)"], "files": {"ANDRE COQUI": "dados/d00.json", "ANTONIO BORG": "dados/d01.json", "BIANCA CYNTH": "dados/d02.json", "BRENDA SOUZA": "dados/d03.json", "CARLOS LACER": "dados/d04.json", "EDSAN MARA": "dados/d05.json", "ELIEZER FRAG": "dados/d06.json", "IARA ALICE": "dados/d07.json", "IGOR ZAMPIRO": "dados/d08.json", "IRINEU COUTI": "dados/d09.json", "JADSON RAMOS": "dados/d10.json", "JOAO LACERDA": "dados/d11.json", "JONATAS IZID": "dados/d12.json", "JULIANO": "dados/d13.json", "JUNIOR PAULO": "dados/d14.json", "KETELLIN M": "dados/d15.json", "LEONARDO JUN": "dados/d16.json", "LUIZ SAMORA": "dados/d17.json", "MAICON LUZZI": "dados/d18.json", "MARIA APAREC": "dados/d19.json", "MOYSES CARVA": "dados/d20.json", "SERGIO MEND": "dados/d21.json", "SILVIA H SAN": "dados/d22.json", "SILVIA MARTI": "dados/d23.json", "VITOR ARAUJO": "dados/d24.json", "ALEX PORTES (supervisor)": "dados/d25.json", "MARCELO FIALHO (gerente)": "dados/d26.json", "BIANCA RICCI (supervisor)": "dados/d27.json", "LEONARDO JUNCA (supervisor)": "dados/d28.json", "MOYSES BADARO (supervisor)": "dados/d29.json"}, "ver": "324751ae"};
 const $=id=>document.getElementById(id);
 const fmt=n=>Math.round(n).toLocaleString('pt-BR');
 const up=n=>Math.ceil(n-1e-9);
@@ -186,7 +186,7 @@ function montar(){
 }
 function base(ignorar){ // linhas filtradas por vendedor e rede
   const fv=$('fVend').value,fr=$('fRede').value,fs=D.vends?$('fSup').value:'';
-  return D.d.filter(r=>(!D.vends||fv===''||r[16]==fv)&&(fs===''||r[17]==fs)&&(fr===''||D.redes[r[0]]===fr));
+  return D.d.filter(r=>(!D.vends||fv===''||r[17]==fv)&&(fs===''||r[18]==fs)&&(fr===''||D.redes[r[0]]===fr));
 }
 function atualizar(origem){
   const rs=base();
@@ -241,7 +241,7 @@ function trocas(){
     <div class="trs">venda ${brl(o.v)}${click?' · toque para ver os produtos ›':''}</div></div>`;
   const lim=(a,k,n)=>VERTUDO[k]?a:a.slice(0,n);
   let h=`<div class="kpis k3"><div class="kpi"><b>${brl(tot.v)}</b><span>Venda MIX+IOG</span></div><div class="kpi falta"><b>${brl(tot.t)}</b><span>Troca R$</span></div><div class="kpi falta"><b>${fp(pct(tot.t,tot.v))}</b><span>% de troca</span></div></div>
-  <div class="ritmo">Só famílias <b>MIX</b> e <b>IOGURTE</b> · % troca = (troca + troca SAC) ÷ venda R$${['MIX','IOGURTE'].map(f=>fam[f]?` · ${f}: <b>${fp(pct(fam[f].t,fam[f].v))}</b>`:'').join('')}</div>
+  <div class="ritmo">Só famílias <b>MIX</b> e <b>IOGURTE</b> · % troca = troca ÷ venda R$ (troca SAC não entra)${['MIX','IOGURTE'].map(f=>fam[f]?` · ${f}: <b>${fp(pct(fam[f].t,fam[f].v))}</b>`:'').join('')}</div>
   <div class="ordtr">Ordenar por: <button data-o="r" class="${ORDTR==='r'?'on':''}">Maior troca R$</button><button data-o="p" class="${ORDTR==='p'?'on':''}">Maior % troca</button></div>`;
   if(fl!=='')h+=`<div class="card lojasel"><div>Loja: <b>${D.lojas[+fl]}</b></div><button id="trVolta">‹ Ver todas as lojas</button></div>`;
   else h+=`<div class="card"><h2>Lojas que mais trocam (${lojas.length})</h2>${lojas.length?lim(lojas,'l',15).map(o=>linha(D.lojas[o.k],D.redes[o.k],o,maxL,String(o.k))).join(''):'<div class="empty">Nenhuma troca.</div>'}
@@ -263,7 +263,7 @@ function valores(){
   const rs=base().filter(r=>(fl===''||r[0]==fl)&&(fc===''||r[1]==fc));
   const m=new Map(),z=()=>({mr:0,vr:0,dr:0,tr:0,cr:0,mk:0,vk:0,dk:0,ck:0});const T=z();
   for(const r of rs){const k=D.fams[r[6]];const o=m.get(k)||z();
-    [[o,1],[T,1]].forEach(([x])=>{x.mr+=r[7];x.vr+=r[8];x.dr+=r[9];x.tr+=r[10];x.cr+=r[11];x.mk+=r[12];x.vk+=r[13];x.dk+=r[14];x.ck+=r[15]});m.set(k,o)}
+    [[o,1],[T,1]].forEach(([x])=>{x.mr+=r[7];x.vr+=r[8];x.dr+=r[9];x.tr+=r[10]+r[16];x.cr+=r[11];x.mk+=r[12];x.vk+=r[13];x.dk+=r[14];x.ck+=r[15]});m.set(k,o)}
   const card=(nome,o,tot)=>{
     const lr=o.vr-o.dr-o.tr,lk=o.vk-o.dk,ar=o.mr?lr/o.mr:0,fr=o.mr?(lr+o.cr)/o.mr:0,ak=o.mk?lk/o.mk:0,fk=o.mk?(lk+o.ck)/o.mk:0;
     return `<div class="fam ${tot?'tot':''}"><div class="hd"><b>${nome}</b><span class="pill" style="background:${farol(fr)}">${pc(fr)} fat.+cart.</span></div>
