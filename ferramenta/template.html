@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>Painel de Metas – Regional ES</title>
+<style>
+:root{--bg:#f4f6f8;--card:#fff;--ink:#1d2733;--mut:#6b7785;--line:#e3e8ee;--pri:#0b5cad;--ok:#1f9d55;--warn:#d69e2e;--bad:#d64545}
+*{box-sizing:border-box}
+body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--ink);font-size:15px}
+header{background:var(--pri);color:#fff;padding:14px 16px 12px}
+header h1{margin:0;font-size:17px}
+header .sub{font-size:12.5px;opacity:.85;margin-top:2px}
+main{max-width:760px;margin:0 auto;padding:12px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:10px}
+label{display:block;font-size:12px;color:var(--mut);margin:8px 0 4px}
+select,input{width:100%;padding:11px 12px;border:1px solid var(--line);border-radius:9px;font-size:15px;background:#fff;color:var(--ink)}
+button{width:100%;padding:12px;border:0;border-radius:9px;background:var(--pri);color:#fff;font-size:15px;font-weight:600;margin-top:12px;cursor:pointer}
+button.sec{background:transparent;color:#fff;border:1px solid rgba(255,255,255,.5);width:auto;padding:6px 12px;margin:0;font-size:13px}
+.err{color:var(--bad);font-size:13px;margin-top:8px;min-height:1em}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:10px}
+.kpi{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:9px 6px;text-align:center}
+.kpi b{display:block;font-size:18px}
+.kpi span{font-size:11px;color:var(--mut)}
+.kpi.falta b{color:var(--bad)}
+.ritmo{font-size:12.5px;color:var(--mut);margin:2px 2px 10px}
+.prod{background:var(--card);border:1px solid var(--line);border-left:5px solid var(--line);border-radius:10px;padding:10px 12px;margin-bottom:8px}
+.prod.ok{border-left-color:var(--ok)}.prod.warn{border-left-color:var(--warn)}.prod.bad{border-left-color:var(--bad)}
+.prod .n{font-weight:600;font-size:14px;line-height:1.25}
+.prod .c{font-size:11.5px;color:var(--mut);margin-top:2px}
+.nums{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;margin-top:8px;text-align:center}
+.nums div{font-size:11px;color:var(--mut)}
+.nums b{display:block;font-size:16px;color:var(--ink)}
+.nums .f b{color:var(--bad)}
+.nums .f.zero b{color:var(--ok)}
+.bar{position:relative;height:7px;background:#edf1f5;border-radius:4px;margin-top:8px;overflow:hidden}
+.bar i{position:absolute;left:0;top:0;bottom:0;border-radius:4px}
+.bar u{position:absolute;top:-2px;bottom:-2px;width:2px;background:#333;opacity:.55}
+.empty{text-align:center;color:var(--mut);padding:30px 10px}
+.hide{display:none!important}
+footer{max-width:760px;margin:6px auto 24px;padding:0 14px;text-align:center;color:var(--mut);font-size:12.5px}
+footer .by{margin-bottom:8px}footer b{color:var(--ink)}
+footer details{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:10px 12px;text-align:left}
+footer summary{cursor:pointer;color:var(--ink);font-weight:600}footer p{margin:8px 0 0;line-height:1.4}
+label.lembrar{display:flex;align-items:center;gap:8px;font-size:14px;color:var(--ink);margin-top:12px}
+label.lembrar input{width:20px;height:20px;margin:0}
+.busca{display:flex;gap:8px}.busca input{flex:1}.busca button{width:auto;margin:0;padding:0 18px}
+.redes{width:100%;border-collapse:collapse;font-size:13px}.redes th{font-size:11px;color:var(--mut);font-weight:500;text-align:right;padding:4px}
+.redes th:first-child,.redes td:first-child{text-align:left}.redes td{padding:7px 4px;border-top:1px solid var(--line);text-align:right}
+.redes tr.tot td{font-weight:700}.redes .pill{display:inline-block;min-width:46px;padding:2px 6px;border-radius:10px;color:#fff;font-size:12px;text-align:center}
+h2{font-size:14px;margin:0 0 6px}
+.top{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.leg{font-size:11.5px;color:var(--mut);display:flex;gap:12px;flex-wrap:wrap;margin:0 2px 10px}
+.leg em{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:4px;vertical-align:-1px}
+</style>
+</head>
+<body>
+<header>
+ <div class="top"><div><h1>Painel de Metas · Regional ES</h1><div class="sub" id="sub"></div><div class="sub" style="opacity:.7">by Alex Portes</div></div>
+ <button class="sec hide" id="sair">Sair</button></div>
+</header>
+<main>
+ <section id="login" class="card">
+  <label>Vendedor</label><select id="nome"></select>
+  <label>PIN (6 dígitos)</label><input id="pin" type="password" inputmode="numeric" maxlength="6" autocomplete="off">
+  <label class="lembrar"><input type="checkbox" id="lembrar" checked> Lembrar PIN neste aparelho</label>
+  <button id="entrar">Entrar</button>
+  <div class="err" id="err"></div>
+ </section>
+
+ <section id="app" class="hide">
+  <div class="card">
+   <div id="fVendWrap" class="grid hide">
+    <div><label>Supervisão</label><select id="fSup"></select></div>
+    <div><label>Vendedor</label><select id="fVend"></select></div>
+   </div>
+   <div class="grid">
+    <div><label>Rede</label><select id="fRede"></select></div>
+    <div><label>Categoria</label><select id="fCat"></select></div>
+   </div>
+   <label>Loja</label><select id="fLoja"></select>
+   <label>Buscar produto</label>
+   <form id="fForm" class="busca"><input id="fBusca" type="search" enterkeyhint="search" autocomplete="off" placeholder="ex.: requeijão 200 zero"><button type="submit" id="bBusca">Buscar</button></form>
+  </div>
+  <div class="kpis">
+   <div class="kpi"><b id="kMeta">0</b><span>Meta cx</span></div>
+   <div class="kpi"><b id="kVenda">0</b><span>Faturado</span></div>
+   <div class="kpi"><b id="kCart">0</b><span>Em carteira</span></div>
+   <div class="kpi falta"><b id="kFalta">0</b><span>Falta</span></div>
+  </div>
+  <div class="ritmo" id="ritmo"></div>
+  <div class="card" id="resumo"></div>
+  <div class="leg"><span><em style="background:var(--ok)"></em>no ritmo</span><span><em style="background:var(--warn)"></em>80–100% do ritmo</span><span><em style="background:var(--bad)"></em>abaixo de 80%</span><span>▏ ritmo ideal</span></div>
+  <div id="lista"></div>
+ </section>
+</main>
+<footer>
+ <div class="by">Criado por <b>Alex Portes</b> · Supervisor de Vendas · Regional ES</div>
+ <details><summary>📱 Colocar este painel na tela do celular</summary>
+  <p><b>Android (Chrome):</b> toque nos 3 pontinhos ⋮ no canto de cima → <i>Adicionar à tela inicial</i> → Adicionar.</p>
+  <p><b>iPhone (Safari):</b> toque no botão Compartilhar ⬆️ → <i>Adicionar à Tela de Início</i> → Adicionar.</p>
+ </details>
+</footer>
+<script>
+const META=/*__META__*/null;
+const BLOBS=/*__BLOBS__*/null;
+const $=id=>document.getElementById(id);
+const fmt=n=>Math.round(n).toLocaleString('pt-BR');
+const up=n=>Math.ceil(n-1e-9);
+const IDEAL=META.dia/META.dias;
+$('sub').textContent=`Relatório de ${META.data} · dia ${META.dia} de ${META.dias}`;
+$('nome').innerHTML=META.nomes.map(n=>`<option>${n}</option>`).join('');
+try{const u=localStorage.getItem('pm_nome');if(u&&META.nomes.includes(u))$('nome').value=u}catch(e){}
+
+const b64=s=>Uint8Array.from(atob(s),c=>c.charCodeAt(0));
+async function abrir(nome,pin){
+  const b=BLOBS[nome];
+  const base=await crypto.subtle.importKey('raw',new TextEncoder().encode(pin),'PBKDF2',false,['deriveKey']);
+  const key=await crypto.subtle.deriveKey({name:'PBKDF2',salt:b64(b.s),iterations:META.iter,hash:'SHA-256'},base,{name:'AES-GCM',length:256},false,['decrypt']);
+  const pt=await crypto.subtle.decrypt({name:'AES-GCM',iv:b64(b.i)},key,b64(b.c));
+  return JSON.parse(new TextDecoder().decode(pt));
+}
+let D=null;
+$('entrar').onclick=async()=>{
+  $('err').textContent='Abrindo…';
+  const nome=$('nome').value,pin=$('pin').value.trim();
+  try{D=await abrir(nome,pin)}catch(e){$('err').textContent='PIN incorreto.';return}
+  try{localStorage.setItem('pm_nome',nome);
+    if($('lembrar').checked)localStorage.setItem('pm_pin',JSON.stringify({nome,pin,data:META.data}));else localStorage.removeItem('pm_pin')}catch(e){}
+  $('err').textContent='';$('pin').value='';
+  $('login').classList.add('hide');$('app').classList.remove('hide');$('sair').classList.remove('hide');
+  $('sub').textContent=`${nome} · relatório de ${META.data} · dia ${META.dia} de ${META.dias}`;
+  montar();
+};
+// entrada automática se o PIN foi salvo
+try{const sv=JSON.parse(localStorage.getItem('pm_pin')||'null');
+  if(sv&&META.nomes.includes(sv.nome)){$('nome').value=sv.nome;$('pin').value=sv.pin;$('entrar').click()}}catch(e){}
+$('pin').addEventListener('keydown',e=>{if(e.key==='Enter')$('entrar').click()});
+$('sair').onclick=()=>{D=null;try{localStorage.removeItem('pm_pin')}catch(e){}$('app').classList.add('hide');$('login').classList.remove('hide');$('sair').classList.add('hide');$('lista').innerHTML='';$('sub').textContent=`Relatório de ${META.data} · dia ${META.dia} de ${META.dias}`};
+
+const opt=(arr,todos)=>`<option value="">${todos}</option>`+arr.map(([v,t])=>`<option value="${v}">${t}</option>`).join('');
+function montar(){
+  if(D.vends){$('fVendWrap').classList.remove('hide');$('fVend').innerHTML=opt(D.vends.map((v,i)=>[i,v]),'Todos');$('fSup').innerHTML=opt(D.sups.map((v,i)=>[i,v]),'Todas')}
+  else $('fVendWrap').classList.add('hide');
+  const redes=[...new Set(D.redes)].sort();
+  $('fRede').innerHTML=opt(redes.map(r=>[r,r]),'Todas');
+  ['fSup','fVend','fRede','fCat','fLoja'].forEach(id=>$(id).onchange=()=>{if(id!=='fLoja'&&id!=='fCat')$('fLoja').dataset.keep='';atualizar(id)});
+  $('fBusca').oninput=()=>render();
+  $('fForm').onsubmit=e=>{e.preventDefault();$('fBusca').blur();render();$('kMeta').scrollIntoView({behavior:'smooth',block:'start'})};
+  atualizar();
+}
+function base(ignorar){ // linhas filtradas por vendedor e rede
+  const fv=$('fVend').value,fr=$('fRede').value,fs=D.vends?$('fSup').value:'';
+  return D.d.filter(r=>(!D.vends||fv===''||r[6]==fv)&&(fs===''||r[7]==fs)&&(fr===''||D.redes[r[0]]===fr));
+}
+function atualizar(origem){
+  const rs=base();
+  const lojaSel=$('fLoja').value,catSel=$('fCat').value;
+  const lojas=[...new Set(rs.map(r=>r[0]))].sort((a,b)=>D.lojas[a].localeCompare(D.lojas[b]));
+  $('fLoja').innerHTML=opt(lojas.map(i=>[i,D.lojas[i]]),'Todas as lojas');
+  if(lojas.includes(+lojaSel)&&lojaSel!=='')$('fLoja').value=lojaSel;
+  const cats=[...new Set(rs.map(r=>r[1]))].sort((a,b)=>D.cats[a].localeCompare(D.cats[b]));
+  $('fCat').innerHTML=opt(cats.map(i=>[i,D.cats[i]]),'Todas');
+  if(cats.includes(+catSel)&&catSel!=='')$('fCat').value=catSel;
+  render();
+}
+function farol(p){const r=p/IDEAL;return r>=1?'var(--ok)':r>=.8?'var(--warn)':'var(--bad)'}
+function resumo(rs,q){
+  if(q.length){$('resumo').classList.add('hide');return}
+  const m=new Map();
+  const ks=new Map();
+  for(const r of rs){const k=D.redes[r[0]];const o=m.get(k)||{m:0,v:0,c:0,f:0,l:new Set()};o.m+=r[3];o.v+=r[4];o.c+=r[5];o.l.add(r[0]);m.set(k,o);
+    const kk=k+'|'+r[2];const x=ks.get(kk)||{k,m:0,v:0,c:0};x.m+=r[3];x.v+=r[4];x.c+=r[5];ks.set(kk,x)}
+  for(const x of ks.values())m.get(x.k).f+=Math.max(0,up(x.m)-Math.round(x.v)-Math.round(x.c));
+  const ls=[...m.entries()].sort((a,b)=>b[1].m-a[1].m);
+  if(ls.length<2&&$('fLoja').value!==''){$('resumo').classList.add('hide');return}
+  $('resumo').classList.remove('hide');
+  let T={m:0,v:0,c:0,f:0};
+  const linha=(n,o,cls='')=>{const p=o.m?(o.v+o.c)/o.m:0;const f=Math.max(0,o.m-o.v-o.c);return `<tr class="${cls}"><td>${n}</td><td>${fmt(o.m)}</td><td>${fmt(o.v+o.c)}</td><td>${fmt(f)}</td><td><span class="pill" style="background:${farol(p)}">${(p*100).toFixed(0)}%</span></td></tr>`};
+  const body=ls.map(([n,o])=>{T.m+=o.m;T.v+=o.v;T.c+=o.c;return linha(n+` <span style="color:var(--mut);font-size:11px">(${o.l.size})</span>`,o)}).join('');
+  $('resumo').innerHTML=`<h2>Resumo por rede</h2><table class="redes"><tr><th>Rede (lojas)</th><th>Meta cx</th><th>Fat.+cart.</th><th>Falta</th><th>%</th></tr>${body}${ls.length>1?linha('Total',T,'tot'):''}</table>`;
+}
+const norm=s=>s.normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase();
+function render(){
+  const fl=$('fLoja').value,fc=$('fCat').value,q=norm($('fBusca').value).split(/\s+/).filter(Boolean);
+  const rs=base().filter(r=>(fl===''||r[0]==fl)&&(fc===''||r[1]==fc));
+  resumo(rs,q);
+  const by=new Map();
+  for(const r of rs){const k=r[2];const o=by.get(k)||{sku:D.skus[k],cat:D.cats[r[1]],m:0,v:0,c:0,l:new Set()};o.m+=r[3];o.v+=r[4];o.c+=r[5];o.l.add(r[0]);by.set(k,o)}
+  let ps=[...by.values()];
+  if(q.length)ps=ps.filter(p=>{const t=norm(p.sku+' '+p.cat);return q.every(w=>t.includes(w))});
+  let M=0,V=0,C=0,F=0;
+  ps.forEach(p=>{p.meta=up(p.m);p.falta=Math.max(0,p.meta-Math.round(p.v)-Math.round(p.c));p.pct=p.meta?(p.v+p.c)/p.meta:1;M+=p.m;V+=p.v;C+=p.c;F+=p.falta});
+  ps.sort((a,b)=>b.falta-a.falta||a.sku.localeCompare(b.sku));
+  $('kMeta').textContent=fmt(M);$('kVenda').textContent=fmt(V);$('kCart').textContent=fmt(C);$('kFalta').textContent=fmt(Math.max(0,M-V-C));
+  const pctT=M?(V+C)/M:0;
+  $('ritmo').innerHTML=`Atingido: <b>${(pctT*100).toFixed(1).replace('.',',')}%</b> · ritmo ideal hoje: <b>${(IDEAL*100).toFixed(1).replace('.',',')}%</b> · ideal até agora: <b>${fmt(M*IDEAL)} cx</b>`;
+  if(!ps.length){$('lista').innerHTML='<div class="empty">Nenhum produto com meta nesse filtro.</div>';return}
+  const umaLoja=fl!=='';
+  $('lista').innerHTML=ps.map(p=>{
+    const r=p.pct/IDEAL, cls=p.meta===0?'ok':r>=1?'ok':r>=.8?'warn':'bad';
+    const w=Math.min(100,p.pct*100), col=cls==='ok'?'var(--ok)':cls==='warn'?'var(--warn)':'var(--bad)';
+    return `<div class="prod ${cls}"><div class="n">${p.sku}</div><div class="c">${p.cat}${umaLoja?'':` · ${p.l.size} loja${p.l.size>1?'s':''}`}</div>
+    <div class="nums"><div><b>${fmt(p.meta)}</b>meta</div><div><b>${fmt(p.v)}</b>faturado</div><div><b>${fmt(p.c)}</b>carteira</div><div class="f ${p.falta?'':'zero'}"><b>${p.falta?fmt(p.falta):'✓'}</b>falta</div></div>
+    <div class="bar"><i style="width:${w}%;background:${col}"></i><u style="left:${IDEAL*100}%"></u></div></div>`}).join('');
+}
+</script>
+</body>
+</html>
