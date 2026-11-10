@@ -94,8 +94,8 @@ h2{font-size:14px;margin:0 0 6px}
 <main>
  <section id="login" class="card">
   <label>Vendedor</label><select id="nome"></select>
-  <label>PIN (6 dígitos)</label><input id="pin" type="password" inputmode="numeric" maxlength="6" autocomplete="off">
-  <label class="lembrar"><input type="checkbox" id="lembrar" checked> Lembrar PIN neste aparelho</label>
+  <label>Senha (6 dígitos)</label><input id="pin" type="password" inputmode="numeric" maxlength="6" autocomplete="off">
+  <label class="lembrar"><input type="checkbox" id="lembrar" checked> Lembrar senha neste aparelho</label>
   <button id="entrar">Entrar</button>
   <div class="err" id="err"></div>
  </section>
@@ -164,7 +164,7 @@ let D=null;
 $('entrar').onclick=async()=>{
   $('err').textContent='Abrindo…';
   const nome=$('nome').value,pin=$('pin').value.trim();
-  try{D=await abrir(nome,pin)}catch(e){$('err').textContent=e.message==='rede'||e instanceof TypeError?'Sem conexão. Tente de novo.':'PIN incorreto.';return}
+  try{D=await abrir(nome,pin)}catch(e){$('err').textContent=e.message==='rede'||e instanceof TypeError?'Sem conexão. Tente de novo.':'Senha incorreta.';return}
   try{localStorage.setItem('pm_nome',nome);
     if($('lembrar').checked)localStorage.setItem('pm_pin',JSON.stringify({nome,pin,data:META.data}));else localStorage.removeItem('pm_pin')}catch(e){}
   $('err').textContent='';$('pin').value='';

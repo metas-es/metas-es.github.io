@@ -94,8 +94,8 @@ h2{font-size:14px;margin:0 0 6px}
 <main>
  <section id="login" class="card">
   <label>Vendedor</label><select id="nome"></select>
-  <label>PIN (6 dígitos)</label><input id="pin" type="password" inputmode="numeric" maxlength="6" autocomplete="off">
-  <label class="lembrar"><input type="checkbox" id="lembrar" checked> Lembrar PIN neste aparelho</label>
+  <label>Senha (6 dígitos)</label><input id="pin" type="password" inputmode="numeric" maxlength="6" autocomplete="off">
+  <label class="lembrar"><input type="checkbox" id="lembrar" checked> Lembrar senha neste aparelho</label>
   <button id="entrar">Entrar</button>
   <div class="err" id="err"></div>
  </section>
@@ -140,7 +140,7 @@ h2{font-size:14px;margin:0 0 6px}
  </details>
 </footer>
 <script>
-const META={"data": "09/11/2026", "dia": 8, "dias": 30, "iter": 250000, "nomes": ["ANDRE COQUI", "ANTONIO BORG", "BIANCA CYNTH", "BRENDA SOUZA", "CARLOS LACER", "EDSAN MARA", "ELIEZER FRAG", "IARA ALICE", "IGOR ZAMPIRO", "IRINEU COUTI", "JADSON RAMOS", "JOAO LACERDA", "JONATAS IZID", "JULIANO", "JUNIOR PAULO", "KETELLIN M", "LEONARDO JUN", "LUIZ SAMORA", "MAICON LUZZI", "MARIA APAREC", "MOYSES CARVA", "SERGIO MEND", "SILVIA H SAN", "SILVIA MARTI", "VITOR ARAUJO", "ALEX PORTES (supervisor)", "BIANCA RICCI (supervisor)", "LEONARDO JUNCA (supervisor)", "MARCELO FIALHO (gerente)", "MOYSES BADARO (supervisor)"], "files": {"ANDRE COQUI": "dados/d00.json", "ANTONIO BORG": "dados/d01.json", "BIANCA CYNTH": "dados/d02.json", "BRENDA SOUZA": "dados/d03.json", "CARLOS LACER": "dados/d04.json", "EDSAN MARA": "dados/d05.json", "ELIEZER FRAG": "dados/d06.json", "IARA ALICE": "dados/d07.json", "IGOR ZAMPIRO": "dados/d08.json", "IRINEU COUTI": "dados/d09.json", "JADSON RAMOS": "dados/d10.json", "JOAO LACERDA": "dados/d11.json", "JONATAS IZID": "dados/d12.json", "JULIANO": "dados/d13.json", "JUNIOR PAULO": "dados/d14.json", "KETELLIN M": "dados/d15.json", "LEONARDO JUN": "dados/d16.json", "LUIZ SAMORA": "dados/d17.json", "MAICON LUZZI": "dados/d18.json", "MARIA APAREC": "dados/d19.json", "MOYSES CARVA": "dados/d20.json", "SERGIO MEND": "dados/d21.json", "SILVIA H SAN": "dados/d22.json", "SILVIA MARTI": "dados/d23.json", "VITOR ARAUJO": "dados/d24.json", "ALEX PORTES (supervisor)": "dados/d25.json", "MARCELO FIALHO (gerente)": "dados/d26.json", "BIANCA RICCI (supervisor)": "dados/d27.json", "LEONARDO JUNCA (supervisor)": "dados/d28.json", "MOYSES BADARO (supervisor)": "dados/d29.json"}, "ver": "0f16cf0d"};
+const META={"data": "09/11/2026", "dia": 8, "dias": 30, "iter": 250000, "nomes": ["ANDRE COQUI", "ANTONIO BORG", "BIANCA CYNTH", "BRENDA SOUZA", "CARLOS LACER", "EDSAN MARA", "ELIEZER FRAG", "IARA ALICE", "IGOR ZAMPIRO", "IRINEU COUTI", "JADSON RAMOS", "JOAO LACERDA", "JONATAS IZID", "JULIANO", "JUNIOR PAULO", "KETELLIN M", "LEONARDO JUN", "LUIZ SAMORA", "MAICON LUZZI", "MARIA APAREC", "MOYSES CARVA", "SERGIO MEND", "SILVIA H SAN", "SILVIA MARTI", "VITOR ARAUJO", "ALEX PORTES (supervisor)", "BIANCA RICCI (supervisor)", "LEONARDO JUNCA (supervisor)", "MARCELO FIALHO (gerente)", "MOYSES BADARO (supervisor)"], "files": {"ANDRE COQUI": "dados/d00.json", "ANTONIO BORG": "dados/d01.json", "BIANCA CYNTH": "dados/d02.json", "BRENDA SOUZA": "dados/d03.json", "CARLOS LACER": "dados/d04.json", "EDSAN MARA": "dados/d05.json", "ELIEZER FRAG": "dados/d06.json", "IARA ALICE": "dados/d07.json", "IGOR ZAMPIRO": "dados/d08.json", "IRINEU COUTI": "dados/d09.json", "JADSON RAMOS": "dados/d10.json", "JOAO LACERDA": "dados/d11.json", "JONATAS IZID": "dados/d12.json", "JULIANO": "dados/d13.json", "JUNIOR PAULO": "dados/d14.json", "KETELLIN M": "dados/d15.json", "LEONARDO JUN": "dados/d16.json", "LUIZ SAMORA": "dados/d17.json", "MAICON LUZZI": "dados/d18.json", "MARIA APAREC": "dados/d19.json", "MOYSES CARVA": "dados/d20.json", "SERGIO MEND": "dados/d21.json", "SILVIA H SAN": "dados/d22.json", "SILVIA MARTI": "dados/d23.json", "VITOR ARAUJO": "dados/d24.json", "ALEX PORTES (supervisor)": "dados/d25.json", "MARCELO FIALHO (gerente)": "dados/d26.json", "BIANCA RICCI (supervisor)": "dados/d27.json", "LEONARDO JUNCA (supervisor)": "dados/d28.json", "MOYSES BADARO (supervisor)": "dados/d29.json"}, "ver": "f663e72b"};
 const $=id=>document.getElementById(id);
 const fmt=n=>Math.round(n).toLocaleString('pt-BR');
 const up=n=>Math.ceil(n-1e-9);
@@ -164,7 +164,7 @@ let D=null;
 $('entrar').onclick=async()=>{
   $('err').textContent='Abrindo…';
   const nome=$('nome').value,pin=$('pin').value.trim();
-  try{D=await abrir(nome,pin)}catch(e){$('err').textContent=e.message==='rede'||e instanceof TypeError?'Sem conexão. Tente de novo.':'PIN incorreto.';return}
+  try{D=await abrir(nome,pin)}catch(e){$('err').textContent=e.message==='rede'||e instanceof TypeError?'Sem conexão. Tente de novo.':'Senha incorreta.';return}
   try{localStorage.setItem('pm_nome',nome);
     if($('lembrar').checked)localStorage.setItem('pm_pin',JSON.stringify({nome,pin,data:META.data}));else localStorage.removeItem('pm_pin')}catch(e){}
   $('err').textContent='';$('pin').value='';
