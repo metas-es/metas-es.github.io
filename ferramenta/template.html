@@ -40,6 +40,11 @@ button.sec{background:transparent;color:#fff;border:1px solid rgba(255,255,255,.
 .bar u{position:absolute;top:-2px;bottom:-2px;width:2px;background:#333;opacity:.55}
 .empty{text-align:center;color:var(--mut);padding:30px 10px}
 .hide{display:none!important}
+.lbusca{position:relative;margin-bottom:6px}
+.sug{position:absolute;left:0;right:0;top:100%;z-index:5;background:#fff;border:1px solid var(--line);border-radius:9px;box-shadow:0 6px 18px rgba(0,0,0,.12);max-height:280px;overflow:auto}
+.sug div{padding:11px 12px;border-top:1px solid var(--line);font-size:14px;cursor:pointer}.sug div:first-child{border-top:0}
+.sug div:active,.sug div:hover{background:#eef4fb}.sug small{color:var(--mut);display:block;font-size:11px}
+.sug .nada{color:var(--mut);cursor:default}
 .tabs{display:flex;gap:6px;margin-bottom:10px}
 .tabs button{flex:1;margin:0;padding:10px 6px;background:#fff;color:var(--pri);border:1px solid var(--pri);font-size:13.5px}
 .tabs button.on{background:var(--pri);color:#fff}
@@ -106,7 +111,9 @@ h2{font-size:14px;margin:0 0 6px}
     <div><label>Rede</label><select id="fRede"></select></div>
     <div><label>Categoria</label><select id="fCat"></select></div>
    </div>
-   <label>Loja</label><select id="fLoja"></select>
+   <label>Loja</label>
+   <div class="lbusca"><input id="fLojaTxt" type="search" enterkeyhint="search" autocomplete="off" placeholder="🔎 Digite a loja (ex.: BH 526)"><div id="lojaSug" class="sug hide"></div></div>
+   <select id="fLoja"></select>
    <div id="buscaWrap"><label>Buscar produto</label>
    <form id="fForm" class="busca"><input id="fBusca" type="search" enterkeyhint="search" autocomplete="off" placeholder="ex.: requeijão 200 zero"><button type="submit" id="bBusca">Buscar</button></form></div>
   </div>
@@ -180,6 +187,16 @@ function montar(){
   $('fRede').innerHTML=opt(redes.map(r=>[r,r]),'Todas');
   ['fSup','fVend','fRede','fCat','fLoja'].forEach(id=>$(id).onchange=()=>{if(id!=='fLoja'&&id!=='fCat')$('fLoja').dataset.keep='';atualizar(id)});
   $('fBusca').oninput=()=>render();
+  const lt=$('fLojaTxt'),sg=$('lojaSug');
+  const escolher=v=>{$('fLoja').value=v;lt.value='';sg.classList.add('hide');lt.blur();render()};
+  lt.oninput=()=>{const q=norm(lt.value).split(/\s+/).filter(Boolean);
+    if(!q.length){sg.classList.add('hide');return}
+    const ops=[...$('fLoja').options].filter(o=>o.value!==''&&q.every(w=>norm(o.text).includes(w)));
+    sg.innerHTML=ops.length?ops.slice(0,30).map(o=>`<div data-v="${o.value}">${o.text}<small>${D.redes[+o.value]}</small></div>`).join(''):'<div class="nada">Nenhuma loja encontrada</div>';
+    sg.classList.remove('hide');
+    sg.querySelectorAll('[data-v]').forEach(e=>e.onclick=()=>escolher(e.dataset.v));};
+  lt.onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();const f=sg.querySelector('[data-v]');if(f)escolher(f.dataset.v)}};
+  document.addEventListener('click',e=>{if(!e.target.closest('.lbusca'))sg.classList.add('hide')});
   $('tCx').onclick=()=>aba('cx');$('tVal').onclick=()=>aba('val');$('tTr').onclick=()=>aba('tr');
   $('fForm').onsubmit=e=>{e.preventDefault();$('fBusca').blur();render();$('kMeta').scrollIntoView({behavior:'smooth',block:'start'})};
   atualizar();
