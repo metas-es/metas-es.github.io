@@ -52,6 +52,18 @@ button.sec{background:transparent;color:#fff;border:1px solid rgba(255,255,255,.
 .g3 div{font-size:10.5px;color:var(--mut)}
 .g3 b{display:block;font-size:14px;color:var(--ink);white-space:nowrap}
 .g3 .neg b{color:var(--bad)}
+.k3{grid-template-columns:repeat(3,1fr)}
+.trl{padding:9px 0;border-top:1px solid var(--line);cursor:default}.trl[data-l]{cursor:pointer}
+.trl:first-of-type{border-top:0}
+.trn{font-size:13.5px;font-weight:600;line-height:1.25}.trn small{display:block;font-weight:400;color:var(--mut);font-size:11px}
+.trv{display:flex;justify-content:space-between;margin-top:3px;font-size:13px}.trv span{font-weight:700;color:var(--bad)}
+.trs{font-size:11px;color:var(--mut);margin-top:3px}
+.ordtr{font-size:12px;color:var(--mut);margin:0 2px 10px;display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.ordtr button,.mais,.lojasel button{width:auto;margin:0;padding:6px 10px;font-size:12.5px;background:#fff;color:var(--pri);border:1px solid var(--pri)}
+.ordtr button.on{background:var(--pri);color:#fff}
+.mais{width:100%;margin-top:8px}
+.lojasel{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:13px}
+.tabs button{font-size:12.5px}
 .troca{font-size:11.5px;color:var(--mut);margin-top:8px;border-top:1px dashed var(--line);padding-top:6px}
 footer{max-width:760px;margin:6px auto 24px;padding:0 14px;text-align:center;color:var(--mut);font-size:12.5px}
 footer .by{margin-bottom:8px}footer b{color:var(--ink)}
@@ -84,7 +96,7 @@ h2{font-size:14px;margin:0 0 6px}
  </section>
 
  <section id="app" class="hide">
-  <div class="tabs"><button id="tCx" class="on">📦 Caixas por produto</button><button id="tVal">💰 Valores R$ / KG</button></div>
+  <div class="tabs"><button id="tCx" class="on">📦 Caixas</button><button id="tVal">💰 Valores</button><button id="tTr">🔄 Trocas</button></div>
   <div class="card">
    <div id="fVendWrap" class="grid hide">
     <div><label>Supervisão</label><select id="fSup"></select></div>
@@ -111,6 +123,7 @@ h2{font-size:14px;margin:0 0 6px}
   <div id="lista"></div>
   </div>
   <div id="vVal" class="hide"></div>
+  <div id="vTr" class="hide"></div>
  </section>
 </main>
 <footer>
@@ -167,7 +180,7 @@ function montar(){
   $('fRede').innerHTML=opt(redes.map(r=>[r,r]),'Todas');
   ['fSup','fVend','fRede','fCat','fLoja'].forEach(id=>$(id).onchange=()=>{if(id!=='fLoja'&&id!=='fCat')$('fLoja').dataset.keep='';atualizar(id)});
   $('fBusca').oninput=()=>render();
-  $('tCx').onclick=()=>aba('cx');$('tVal').onclick=()=>aba('val');
+  $('tCx').onclick=()=>aba('cx');$('tVal').onclick=()=>aba('val');$('tTr').onclick=()=>aba('tr');
   $('fForm').onsubmit=e=>{e.preventDefault();$('fBusca').blur();render();$('kMeta').scrollIntoView({behavior:'smooth',block:'start'})};
   atualizar();
 }
@@ -204,8 +217,43 @@ function resumo(rs,q){
 }
 const norm=s=>s.normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase();
 let ABA='cx';
-function aba(a){ABA=a;$('tCx').classList.toggle('on',a==='cx');$('tVal').classList.toggle('on',a==='val');
-  $('vCx').classList.toggle('hide',a!=='cx');$('vVal').classList.toggle('hide',a!=='val');$('buscaWrap').classList.toggle('hide',a!=='cx');render()}
+function aba(a){ABA=a;[['cx','tCx','vCx'],['val','tVal','vVal'],['tr','tTr','vTr']].forEach(([k,t,v])=>{$(t).classList.toggle('on',a===k);$(v).classList.toggle('hide',a!==k)});
+  $('buscaWrap').classList.toggle('hide',a==='val');render()}
+let ORDTR='r',VERTUDO={l:false,p:false};
+function trocas(){
+  const fl=$('fLoja').value,fc=$('fCat').value,q=norm($('fBusca').value).split(/\s+/).filter(Boolean);
+  const okF=new Set(D.fams.map((f,i)=>['MIX','IOGURTE'].includes(f)?i:-1).filter(i=>i>=0));
+  let rs=base().filter(r=>okF.has(r[6])&&(fc===''||r[1]==fc));
+  if(q.length)rs=rs.filter(r=>{const t=norm(D.skus[r[2]]+' '+D.cats[r[1]]);return q.every(w=>t.includes(w))});
+  const rl=fl===''?rs:rs.filter(r=>r[0]==fl);
+  const pct=(t,v)=>v>0?t/v:(t>0?Infinity:0);
+  const fp=x=>x===Infinity?'sem venda':pc(x);
+  const tot={v:0,t:0},fam={};
+  for(const r of rl){tot.v+=r[8];tot.t+=r[10];const f=D.fams[r[6]];fam[f]=fam[f]||{v:0,t:0};fam[f].v+=r[8];fam[f].t+=r[10]}
+  const agg=(arr,key)=>{const m=new Map();for(const r of arr){const k=key(r);const o=m.get(k)||{k,v:0,t:0,f:D.fams[r[6]]};o.v+=r[8];o.t+=r[10];m.set(k,o)}
+    return [...m.values()].filter(o=>o.t>0).map(o=>({...o,p:pct(o.t,o.v)}))};
+  const ord=a=>a.sort((x,y)=>ORDTR==='r'?y.t-x.t:((y.p===Infinity?-1:y.p)-(x.p===Infinity?-1:x.p)||y.t-x.t));
+  const prods=ord(agg(rl,r=>r[2]));
+  const lojas=fl===''?ord(agg(rs,r=>r[0])):[];
+  const maxT=Math.max(1,...prods.map(o=>o.t)),maxL=Math.max(1,...lojas.map(o=>o.t));
+  const linha=(nome,sub,o,max,click)=>`<div class="trl" ${click?`data-l="${click}"`:''}><div class="trn">${nome}${sub?`<small>${sub}</small>`:''}</div>
+    <div class="trv"><b>${brl(o.t)}</b><span>${fp(o.p)}</span></div><div class="bar"><i style="width:${o.t/max*100}%;background:var(--bad)"></i></div>
+    <div class="trs">venda ${brl(o.v)}${click?' · toque para ver os produtos ›':''}</div></div>`;
+  const lim=(a,k,n)=>VERTUDO[k]?a:a.slice(0,n);
+  let h=`<div class="kpis k3"><div class="kpi"><b>${brl(tot.v)}</b><span>Venda MIX+IOG</span></div><div class="kpi falta"><b>${brl(tot.t)}</b><span>Troca R$</span></div><div class="kpi falta"><b>${fp(pct(tot.t,tot.v))}</b><span>% de troca</span></div></div>
+  <div class="ritmo">Só famílias <b>MIX</b> e <b>IOGURTE</b> · % troca = (troca + troca SAC) ÷ venda R$${['MIX','IOGURTE'].map(f=>fam[f]?` · ${f}: <b>${fp(pct(fam[f].t,fam[f].v))}</b>`:'').join('')}</div>
+  <div class="ordtr">Ordenar por: <button data-o="r" class="${ORDTR==='r'?'on':''}">Maior troca R$</button><button data-o="p" class="${ORDTR==='p'?'on':''}">Maior % troca</button></div>`;
+  if(fl!=='')h+=`<div class="card lojasel"><div>Loja: <b>${D.lojas[+fl]}</b></div><button id="trVolta">‹ Ver todas as lojas</button></div>`;
+  else h+=`<div class="card"><h2>Lojas que mais trocam (${lojas.length})</h2>${lojas.length?lim(lojas,'l',15).map(o=>linha(D.lojas[o.k],D.redes[o.k],o,maxL,String(o.k))).join(''):'<div class="empty">Nenhuma troca.</div>'}
+    ${lojas.length>15?`<button class="mais" data-m="l">${VERTUDO.l?'Mostrar menos':'Mostrar todas'}</button>`:''}</div>`;
+  h+=`<div class="card"><h2>Produtos que mais trocam${fl!==''?' nesta loja':''} (${prods.length})</h2>${prods.length?lim(prods,'p',20).map(o=>linha(D.skus[o.k],o.f,o,maxT)).join(''):'<div class="empty">Nenhuma troca.</div>'}
+    ${prods.length>20?`<button class="mais" data-m="p">${VERTUDO.p?'Mostrar menos':'Mostrar todos'}</button>`:''}</div>`;
+  $('vTr').innerHTML=h;
+  $('vTr').querySelectorAll('[data-l]').forEach(e=>e.onclick=()=>{$('fLoja').value=e.dataset.l;render();$('vTr').scrollIntoView({behavior:'smooth'})});
+  $('vTr').querySelectorAll('[data-o]').forEach(e=>e.onclick=()=>{ORDTR=e.dataset.o;render()});
+  $('vTr').querySelectorAll('[data-m]').forEach(e=>e.onclick=()=>{VERTUDO[e.dataset.m]=!VERTUDO[e.dataset.m];render()});
+  const v=$('trVolta');if(v)v.onclick=()=>{$('fLoja').value='';render()};
+}
 const brl=n=>(n<0?'-':'')+'R$ '+Math.round(Math.abs(n)).toLocaleString('pt-BR');
 const kg=n=>Math.round(n).toLocaleString('pt-BR');
 const pc=n=>(n*100).toFixed(1).replace('.',',')+'%';
@@ -231,6 +279,7 @@ function valores(){
 }
 function render(){
   if(ABA==='val'){valores();return}
+  if(ABA==='tr'){trocas();return}
   const fl=$('fLoja').value,fc=$('fCat').value,q=norm($('fBusca').value).split(/\s+/).filter(Boolean);
   const rs=base().filter(r=>(fl===''||r[0]==fl)&&(fc===''||r[1]==fc));
   resumo(rs,q);
