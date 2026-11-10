@@ -46,7 +46,7 @@ for r in raw:
            num(r[ix['TROCA SAC R$']])]
     if meta == 0 and venda == 0 and cart == 0 and not any(val): continue
     rows.append(dict(v=vend if vend != SUP else 'ALEX PORTES (CDs / carga fechada)', sup=r[ix['SUPERVISÃO']], rede=r[ix['REDE']], loja=r[ix['LOJA']], cat=r[ix['CATEGORIA']],
-                     sku=nome_sku(r[ix['SKU']]), meta=meta, venda=venda, cart=cart,
+                     sku=nome_sku(r[ix['SKU']]), cod=str(r[ix['SKU']] or '').split('|')[0].strip(), meta=meta, venda=venda, cart=cart,
                      fam=r[ix['FAMILIA']] or 'OUTROS', val=val))
 
 def pack(rs, with_vend):
@@ -61,7 +61,8 @@ def pack(rs, with_vend):
     d = [[L[x['loja']], C[x['cat']], S[x['sku']], round(x['meta'], 2), round(x['venda'], 2), round(x['cart'], 2), F[x['fam']]]
          + [round(v, 2) for v in x["val"]]
          + ([V[x['v']], P[x['sup']]] if with_vend else []) for x in rs]
-    return dict(fams=fams, lojas=lojas, redes=[redes[l] for l in lojas], skus=skus, cats=cats,
+    codmap = {x['sku']: x['cod'] for x in rs}
+    return dict(fams=fams, lojas=lojas, redes=[redes[l] for l in lojas], skus=skus, cods=[codmap[k] for k in skus], cats=cats,
                 vends=vends if with_vend else None, sups=sups if with_vend else None, d=d)
 
 pins_path = PINS_PATH

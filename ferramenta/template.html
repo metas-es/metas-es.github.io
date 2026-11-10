@@ -6,16 +6,17 @@
 <meta name="robots" content="noindex,nofollow">
 <title>Painel de Metas – Regional ES</title>
 <style>
-:root{--bg:#f4f6f8;--card:#fff;--ink:#1d2733;--mut:#6b7785;--line:#e3e8ee;--pri:#0b5cad;--ok:#1f9d55;--warn:#d69e2e;--bad:#d64545}
+:root{--bg:#f4f6f8;--card:#fff;--ink:#1d2733;--mut:#6b7785;--line:#e3e8ee;--pri:#0b5cad;--ok:#1f9d55;--warn:#d69e2e;--bad:#d64545;--trk:#edf1f5;--hdr:#0b5cad}
+body.escuro{--bg:#0e141b;--card:#18222d;--ink:#e6edf3;--mut:#9aa8b6;--line:#2b3846;--pri:#4f9be6;--ok:#2fb36a;--warn:#e0a63a;--bad:#ef6464;--trk:#26323f;--hdr:#0f2a47;color-scheme:dark}
 *{box-sizing:border-box}
 body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--ink);font-size:15px}
-header{background:var(--pri);color:#fff;padding:14px 16px 12px}
+header{background:var(--hdr);color:#fff;padding:14px 16px 12px}
 header h1{margin:0;font-size:17px}
 header .sub{font-size:12.5px;opacity:.85;margin-top:2px}
 main{max-width:760px;margin:0 auto;padding:12px}
 .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:10px}
 label{display:block;font-size:12px;color:var(--mut);margin:8px 0 4px}
-select,input{width:100%;padding:11px 12px;border:1px solid var(--line);border-radius:9px;font-size:15px;background:#fff;color:var(--ink)}
+select,input{width:100%;padding:11px 12px;border:1px solid var(--line);border-radius:9px;font-size:15px;background:var(--card);color:var(--ink)}
 button{width:100%;padding:12px;border:0;border-radius:9px;background:var(--pri);color:#fff;font-size:15px;font-weight:600;margin-top:12px;cursor:pointer}
 button.sec{background:transparent;color:#fff;border:1px solid rgba(255,255,255,.5);width:auto;padding:6px 12px;margin:0;font-size:13px}
 .err{color:var(--bad);font-size:13px;margin-top:8px;min-height:1em}
@@ -35,18 +36,18 @@ button.sec{background:transparent;color:#fff;border:1px solid rgba(255,255,255,.
 .nums b{display:block;font-size:16px;color:var(--ink)}
 .nums .f b{color:var(--bad)}
 .nums .f.zero b{color:var(--ok)}
-.bar{position:relative;height:7px;background:#edf1f5;border-radius:4px;margin-top:8px;overflow:hidden}
+.bar{position:relative;height:7px;background:var(--trk);border-radius:4px;margin-top:8px;overflow:hidden}
 .bar i{position:absolute;left:0;top:0;bottom:0;border-radius:4px}
 .bar u{position:absolute;top:-2px;bottom:-2px;width:2px;background:#333;opacity:.55}
 .empty{text-align:center;color:var(--mut);padding:30px 10px}
 .hide{display:none!important}
 .lbusca{position:relative;margin-bottom:6px}
-.sug{position:absolute;left:0;right:0;top:100%;z-index:5;background:#fff;border:1px solid var(--line);border-radius:9px;box-shadow:0 6px 18px rgba(0,0,0,.12);max-height:280px;overflow:auto}
+.sug{position:absolute;left:0;right:0;top:100%;z-index:5;background:var(--card);border:1px solid var(--line);border-radius:9px;box-shadow:0 6px 18px rgba(0,0,0,.12);max-height:280px;overflow:auto}
 .sug div{padding:11px 12px;border-top:1px solid var(--line);font-size:14px;cursor:pointer}.sug div:first-child{border-top:0}
 .sug div:active,.sug div:hover{background:#eef4fb}.sug small{color:var(--mut);display:block;font-size:11px}
 .sug .nada{color:var(--mut);cursor:default}
 .tabs{display:flex;gap:6px;margin-bottom:10px}
-.tabs button{flex:1;margin:0;padding:10px 6px;background:#fff;color:var(--pri);border:1px solid var(--pri);font-size:13.5px}
+.tabs button{flex:1;margin:0;padding:10px 6px;background:var(--card);color:var(--pri);border:1px solid var(--pri);font-size:13.5px}
 .tabs button.on{background:var(--pri);color:#fff}
 .fam{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px;margin-bottom:10px}
 .fam.tot{border:2px solid var(--pri)}
@@ -64,7 +65,7 @@ button.sec{background:transparent;color:#fff;border:1px solid rgba(255,255,255,.
 .trv{display:flex;justify-content:space-between;margin-top:3px;font-size:13px}.trv span{font-weight:700;color:var(--bad)}
 .trs{font-size:11px;color:var(--mut);margin-top:3px}
 .ordtr{font-size:12px;color:var(--mut);margin:0 2px 10px;display:flex;gap:6px;align-items:center;flex-wrap:wrap}
-.ordtr button,.mais,.lojasel button{width:auto;margin:0;padding:6px 10px;font-size:12.5px;background:#fff;color:var(--pri);border:1px solid var(--pri)}
+.ordtr button,.mais,.lojasel button{width:auto;margin:0;padding:6px 10px;font-size:12.5px;background:var(--card);color:var(--pri);border:1px solid var(--pri)}
 .ordtr button.on{background:var(--pri);color:#fff}
 .mais{width:100%;margin-top:8px}
 .lojasel{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:13px}
@@ -82,6 +83,23 @@ label.lembrar input{width:20px;height:20px;margin:0}
 .redes tr.tot td{font-weight:700}.pill{display:inline-block;min-width:46px;padding:2px 6px;border-radius:10px;color:#fff;font-size:12px;text-align:center}
 h2{font-size:14px;margin:0 0 6px}
 .top{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.hbtn{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+.top{flex-wrap:wrap}
+.filtros{display:grid;grid-template-columns:1fr 1fr;gap:0 10px}
+.filtros .loja,.filtros #buscaWrap{grid-column:1/-1}
+body.desk main,body.desk footer{max-width:1240px}
+body.desk header .top{max-width:1240px;margin:0 auto}
+body.desk .filtros{grid-template-columns:repeat(4,1fr);gap:0 14px}
+body.desk .filtros .loja,body.desk .filtros #buscaWrap{grid-column:span 2}
+body.desk #lista,body.desk #vVal{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:10px;align-items:start}
+body.desk #lista .prod,body.desk #vVal .fam{margin:0}
+body.desk #lista .empty,body.desk #vVal .ritmo,body.desk #vVal .empty{grid-column:1/-1}
+body.desk #vVal .fam.tot{grid-column:1/-1}
+body.desk #vTr{display:grid;grid-template-columns:1fr 1fr;gap:10px;align-items:start}
+body.desk #vTr>.kpis,body.desk #vTr>.ritmo,body.desk #vTr>.ordtr,body.desk #vTr>.lojasel{grid-column:1/-1}
+body.desk #vTr>.card{margin:0}
+body.desk .tabs{max-width:620px}
+body.desk #login{max-width:440px;margin:20px auto}
 .leg{font-size:11.5px;color:var(--mut);display:flex;gap:12px;flex-wrap:wrap;margin:0 2px 10px}
 .leg em{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:4px;vertical-align:-1px}
 </style>
@@ -89,7 +107,7 @@ h2{font-size:14px;margin:0 0 6px}
 <body>
 <header>
  <div class="top"><div><h1>Painel de Metas · Regional ES</h1><div class="sub" id="sub"></div><div class="sub" style="opacity:.7">by Alex Portes</div></div>
- <button class="sec hide" id="sair">Sair</button></div>
+ <div class="hbtn"><button class="sec" id="bTema" title="Modo escuro / claro">🌙 Escuro</button><button class="sec" id="bLayout" title="Layout de computador ou celular">🖥️ Computador</button><button class="sec hide" id="sair">Sair</button></div></div>
 </header>
 <main>
  <section id="login" class="card">
@@ -102,19 +120,14 @@ h2{font-size:14px;margin:0 0 6px}
 
  <section id="app" class="hide">
   <div class="tabs"><button id="tCx" class="on">📦 Caixas</button><button id="tVal">💰 Valores</button><button id="tTr">🔄 Trocas</button></div>
-  <div class="card">
-   <div id="fVendWrap" class="grid hide">
-    <div><label>Supervisão</label><select id="fSup"></select></div>
-    <div><label>Vendedor</label><select id="fVend"></select></div>
-   </div>
-   <div class="grid">
+  <div class="card filtros">
+    <div class="gest hide"><label>Supervisão</label><select id="fSup"></select></div>
+    <div class="gest hide"><label>Vendedor</label><select id="fVend"></select></div>
     <div><label>Rede</label><select id="fRede"></select></div>
     <div><label>Categoria</label><select id="fCat"></select></div>
-   </div>
-   <label>Loja</label>
-   <select id="fLoja"></select>
+   <div class="loja"><label>Loja</label><select id="fLoja"></select></div>
    <div id="buscaWrap"><label>Buscar produto</label>
-   <form id="fForm" class="busca"><input id="fBusca" type="search" enterkeyhint="search" autocomplete="off" placeholder="ex.: requeijão 200 zero"><button type="submit" id="bBusca">Buscar</button></form></div>
+   <form id="fForm" class="busca"><input id="fBusca" type="search" enterkeyhint="search" autocomplete="off" placeholder="nome ou código (ex.: 2182)"><button type="submit" id="bBusca">Buscar</button></form></div>
   </div>
   <div id="vCx">
   <div class="kpis">
@@ -180,8 +193,8 @@ $('sair').onclick=()=>{D=null;try{localStorage.removeItem('pm_pin')}catch(e){}$(
 
 const opt=(arr,todos)=>`<option value="">${todos}</option>`+arr.map(([v,t])=>`<option value="${v}">${t}</option>`).join('');
 function montar(){
-  if(D.vends){$('fVendWrap').classList.remove('hide');$('fVend').innerHTML=opt(D.vends.map((v,i)=>[i,v]),'Todos');$('fSup').innerHTML=opt(D.sups.map((v,i)=>[i,v]),'Todas')}
-  else $('fVendWrap').classList.add('hide');
+  document.querySelectorAll('.gest').forEach(e=>e.classList.toggle('hide',!D.vends));
+  if(D.vends){$('fVend').innerHTML=opt(D.vends.map((v,i)=>[i,v]),'Todos');$('fSup').innerHTML=opt(D.sups.map((v,i)=>[i,v]),'Todas')}
   const redes=[...new Set(D.redes)].sort();
   $('fRede').innerHTML=opt(redes.map(r=>[r,r]),'Todas');
   ['fSup','fVend','fRede','fCat','fLoja'].forEach(id=>$(id).onchange=()=>{if(id!=='fLoja'&&id!=='fCat')$('fLoja').dataset.keep='';atualizar(id)});
@@ -221,6 +234,17 @@ function resumo(rs,q){
   const body=ls.map(([n,o])=>{T.m+=o.m;T.v+=o.v;T.c+=o.c;return linha(n+` <span style="color:var(--mut);font-size:11px">(${o.l.size})</span>`,o)}).join('');
   $('resumo').innerHTML=`<h2>Resumo por rede</h2><table class="redes"><tr><th>Rede (lojas)</th><th>Meta cx</th><th>Fat.+cart.</th><th>Falta</th><th>%</th></tr>${body}${ls.length>1?linha('Total',T,'tot'):''}</table>`;
 }
+const cod=k=>(D&&D.cods&&D.cods[k])||'';
+const codTxt=k=>{const c=cod(k);return c+' '+c.replace(/\D/g,'')};
+// ---- tema e layout ----
+const LS={get:k=>{try{return localStorage.getItem(k)}catch(e){return null}},set:(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}}};
+function aplicaTema(t){document.body.classList.toggle('escuro',t==='escuro');$('bTema').textContent=t==='escuro'?'☀️ Claro':'🌙 Escuro'}
+function aplicaLayout(l){document.body.classList.toggle('desk',l==='desk');$('bLayout').textContent=l==='desk'?'📱 Celular':'🖥️ Computador'}
+let TEMA=LS.get('pm_tema')||(window.matchMedia&&matchMedia('(prefers-color-scheme: dark)').matches?'escuro':'claro');
+let LAYOUT=LS.get('pm_layout')||(window.innerWidth>=900?'desk':'cel');
+aplicaTema(TEMA);aplicaLayout(LAYOUT);
+$('bTema').onclick=()=>{TEMA=TEMA==='escuro'?'claro':'escuro';LS.set('pm_tema',TEMA);aplicaTema(TEMA)};
+$('bLayout').onclick=()=>{LAYOUT=LAYOUT==='desk'?'cel':'desk';LS.set('pm_layout',LAYOUT);aplicaLayout(LAYOUT)};
 const norm=s=>s.normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase();
 let ABA='cx';
 function aba(a){ABA=a;[['cx','tCx','vCx'],['val','tVal','vVal'],['tr','tTr','vTr']].forEach(([k,t,v])=>{$(t).classList.toggle('on',a===k);$(v).classList.toggle('hide',a!==k)});
@@ -230,7 +254,7 @@ function trocas(){
   const fl=$('fLoja').value,fc=$('fCat').value,q=norm($('fBusca').value).split(/\s+/).filter(Boolean);
   const okF=new Set(D.fams.map((f,i)=>['MIX','IOGURTE'].includes(f)?i:-1).filter(i=>i>=0));
   let rs=base().filter(r=>okF.has(r[6])&&(fc===''||r[1]==fc));
-  if(q.length)rs=rs.filter(r=>{const t=norm(D.skus[r[2]]+' '+D.cats[r[1]]);return q.every(w=>t.includes(w))});
+  if(q.length)rs=rs.filter(r=>{const t=norm(D.skus[r[2]]+' '+D.cats[r[1]]+' '+codTxt(r[2]));return q.every(w=>t.includes(w))});
   const rl=fl===''?rs:rs.filter(r=>r[0]==fl);
   const pct=(t,v)=>v>0?t/v:(t>0?Infinity:0);
   const fp=x=>x===Infinity?'sem venda':pc(x);
@@ -252,7 +276,7 @@ function trocas(){
   if(fl!=='')h+=`<div class="card lojasel"><div>Loja: <b>${D.lojas[+fl]}</b></div><button id="trVolta">‹ Ver todas as lojas</button></div>`;
   else h+=`<div class="card"><h2>Lojas que mais trocam (${lojas.length})</h2>${lojas.length?lim(lojas,'l',15).map(o=>linha(D.lojas[o.k],D.redes[o.k],o,maxL,String(o.k))).join(''):'<div class="empty">Nenhuma troca.</div>'}
     ${lojas.length>15?`<button class="mais" data-m="l">${VERTUDO.l?'Mostrar menos':'Mostrar todas'}</button>`:''}</div>`;
-  h+=`<div class="card"><h2>Produtos que mais trocam${fl!==''?' nesta loja':''} (${prods.length})</h2>${prods.length?lim(prods,'p',20).map(o=>linha(D.skus[o.k],o.f,o,maxT)).join(''):'<div class="empty">Nenhuma troca.</div>'}
+  h+=`<div class="card"><h2>Produtos que mais trocam${fl!==''?' nesta loja':''} (${prods.length})</h2>${prods.length?lim(prods,'p',20).map(o=>linha(D.skus[o.k],o.f+(cod(o.k)?' · cód. '+cod(o.k):''),o,maxT)).join(''):'<div class="empty">Nenhuma troca.</div>'}
     ${prods.length>20?`<button class="mais" data-m="p">${VERTUDO.p?'Mostrar menos':'Mostrar todos'}</button>`:''}</div>`;
   $('vTr').innerHTML=h;
   $('vTr').querySelectorAll('[data-l]').forEach(e=>e.onclick=()=>{$('fLoja').value=e.dataset.l;render();$('vTr').scrollIntoView({behavior:'smooth'})});
@@ -290,9 +314,9 @@ function render(){
   const rs=base().filter(r=>(fl===''||r[0]==fl)&&(fc===''||r[1]==fc));
   resumo(rs,q);
   const by=new Map();
-  for(const r of rs){const k=r[2];const o=by.get(k)||{sku:D.skus[k],cat:D.cats[r[1]],m:0,v:0,c:0,l:new Set()};o.m+=r[3];o.v+=r[4];o.c+=r[5];o.l.add(r[0]);by.set(k,o)}
+  for(const r of rs){const k=r[2];const o=by.get(k)||{k,sku:D.skus[k],cod:cod(k),cat:D.cats[r[1]],m:0,v:0,c:0,l:new Set()};o.m+=r[3];o.v+=r[4];o.c+=r[5];o.l.add(r[0]);by.set(k,o)}
   let ps=[...by.values()];
-  if(q.length)ps=ps.filter(p=>{const t=norm(p.sku+' '+p.cat);return q.every(w=>t.includes(w))});
+  if(q.length)ps=ps.filter(p=>{const t=norm(p.sku+' '+p.cat+' '+codTxt(p.k));return q.every(w=>t.includes(w))});
   let M=0,V=0,C=0,F=0;
   ps.forEach(p=>{p.meta=up(p.m);p.falta=Math.max(0,p.meta-Math.round(p.v)-Math.round(p.c));p.pct=p.meta?(p.v+p.c)/p.meta:1;M+=p.m;V+=p.v;C+=p.c;F+=p.falta});
   ps.sort((a,b)=>b.falta-a.falta||a.sku.localeCompare(b.sku));
@@ -304,7 +328,7 @@ function render(){
   $('lista').innerHTML=ps.map(p=>{
     const r=p.pct/IDEAL, cls=p.meta===0?'ok':r>=1?'ok':r>=.8?'warn':'bad';
     const w=Math.min(100,p.pct*100), col=cls==='ok'?'var(--ok)':cls==='warn'?'var(--warn)':'var(--bad)';
-    return `<div class="prod ${cls}"><div class="n">${p.sku}</div><div class="c">${p.cat}${umaLoja?'':` · ${p.l.size} loja${p.l.size>1?'s':''}`}</div>
+    return `<div class="prod ${cls}"><div class="n">${p.sku}</div><div class="c">${p.cod?'cód. '+p.cod+' · ':''}${p.cat}${umaLoja?'':` · ${p.l.size} loja${p.l.size>1?'s':''}`}</div>
     <div class="nums"><div><b>${fmt(p.meta)}</b>meta</div><div><b>${fmt(p.v)}</b>faturado</div><div><b>${fmt(p.c)}</b>carteira</div><div class="f ${p.falta?'':'zero'}"><b>${p.falta?fmt(p.falta):'✓'}</b>falta</div></div>
     <div class="bar"><i style="width:${w}%;background:${col}"></i><u style="left:${IDEAL*100}%"></u></div></div>`}).join('');
 }
