@@ -35,6 +35,9 @@ button.sec{background:transparent;color:#fff;border:1px solid rgba(255,255,255,.
 .nums{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;margin-top:8px;text-align:center}
 .nums div{font-size:11px;color:var(--mut)}
 .nums b{display:block;font-size:16px;color:var(--ink)}
+.nums .cart b{color:var(--mut)}
+.bar i.bc{background:repeating-linear-gradient(45deg,var(--mut) 0 3px,transparent 3px 6px);opacity:.45}
+.redes td.sec2{color:var(--mut)}
 .nums b small{font-size:11px;font-weight:600;opacity:.75}
 .nums .f b{color:var(--bad)}
 .nums .f.zero b{color:var(--ok)}
@@ -139,7 +142,7 @@ body.desk #login{max-width:440px;margin:20px auto}
   </div>
   <div class="ritmo" id="ritmo"></div>
   <div class="card" id="resumo"></div>
-  <div class="leg"><span><em style="background:var(--ok)"></em>no ritmo</span><span><em style="background:var(--warn)"></em>80–100% do ritmo</span><span><em style="background:var(--bad)"></em>abaixo de 80%</span><span>▏ ritmo ideal</span></div>
+  <div class="leg"><span><em style="background:var(--ok)"></em>no ritmo</span><span><em style="background:var(--warn)"></em>80–100% do ritmo</span><span><em style="background:var(--bad)"></em>abaixo de 80%</span><span><em style="background:repeating-linear-gradient(45deg,var(--mut) 0 2px,transparent 2px 4px)"></em>em carteira (não conta)</span><span>▏ ritmo ideal</span></div>
   <div id="lista"></div>
   </div>
   <div id="vVal" class="hide"></div>
@@ -307,7 +310,7 @@ function aba(a,semRender){ABA=a;[['cx','tCx','vCx'],['val','tVal','vVal'],['tr',
 function render(){if(!D)return;if(ABA==='val')valores();else if(ABA==='tr')trocas();else caixas()}
 
 // ---- aba Caixas ----
-const faltaCx=(m,v,c)=>Math.max(0,up(m)-Math.round(v)-Math.round(c));
+const faltaCx=(m,v)=>Math.max(0,up(m)-Math.round(v)); // carteira NÃO abate: só conta o que faturou
 function resumo(rs,buscando){
   const el=$('resumo'),m=new Map();
   for(const r of rs){const k=D.redes[r[LOJA]];const o=m.get(k)||{m:0,v:0,c:0,l:new Set()};o.m+=r[MCX];o.v+=r[VCX];o.c+=r[CCX];o.l.add(r[LOJA]);m.set(k,o)}
@@ -315,9 +318,9 @@ function resumo(rs,buscando){
   if(buscando||!ls.length||(ls.length<2&&$('fLoja').value!=='')){el.classList.add('hide');return}
   el.classList.remove('hide');
   const T={m:0,v:0,c:0};
-  const linha=(n,o,cls='')=>{const p=o.m?(o.v+o.c)/o.m:1;return `<tr class="${cls}"><td>${n}</td><td>${fmt(up(o.m))}</td><td>${fmt(o.v+o.c)}</td><td>${fmt(faltaCx(o.m,o.v,o.c))}</td><td><span class="pill" style="background:${farol(p)}">${(p*100).toFixed(0)}%</span></td></tr>`};
+  const linha=(n,o,cls='')=>{const p=o.m?o.v/o.m:1;return `<tr class="${cls}"><td>${n}</td><td>${fmt(up(o.m))}</td><td>${fmt(o.v)}</td><td class="sec2">${fmt(o.c)}</td><td>${fmt(faltaCx(o.m,o.v))}</td><td><span class="pill" style="background:${farol(p)}">${(p*100).toFixed(0)}%</span></td></tr>`};
   const body=ls.map(([n,o])=>{T.m+=o.m;T.v+=o.v;T.c+=o.c;return linha(esc(n)+` <span style="color:var(--mut);font-size:11px">(${o.l.size})</span>`,o)}).join('');
-  el.innerHTML=`<h2>Resumo por rede <span style="font-weight:400;color:var(--mut);font-size:12px">· em caixas (cx)</span></h2><table class="redes"><tr><th>Rede (lojas)</th><th>Meta</th><th>Fat.+cart.</th><th>Falta</th><th>%</th></tr>${body}${ls.length>1?linha('Total',T,'tot'):''}</table>`;
+  el.innerHTML=`<h2>Resumo por rede <span style="font-weight:400;color:var(--mut);font-size:12px">· em caixas (cx)</span></h2><table class="redes"><tr><th>Rede (lojas)</th><th>Meta</th><th>Fatur.</th><th>Cart.</th><th>Falta</th><th>%</th></tr>${body}${ls.length>1?linha('Total',T,'tot'):''}</table>`;
 }
 function caixas(){
   const q=palavras(),umaLoja=$('fLoja').value!=='';
@@ -328,16 +331,16 @@ function caixas(){
   let ps=[...by.values()];
   if(q.length)ps=ps.filter(p=>{const t=textoSku(p.k,p.cat);return q.every(w=>t.includes(w))});
   let M=0,V=0,C=0;
-  ps.forEach(p=>{p.meta=up(p.m);p.falta=faltaCx(p.m,p.v,p.c);p.pct=p.meta?(p.v+p.c)/p.meta:1;M+=p.m;V+=p.v;C+=p.c});
+  ps.forEach(p=>{p.meta=up(p.m);p.falta=faltaCx(p.m,p.v);p.pct=p.meta?p.v/p.meta:1;p.pcc=p.meta?(p.v+p.c)/p.meta:1;M+=p.m;V+=p.v;C+=p.c});
   ps.sort((a,b)=>b.falta-a.falta||alfa(D.skus[a.k],D.skus[b.k]));
-  $('kMeta').textContent=fmt(up(M));$('kVenda').textContent=fmt(V);$('kCart').textContent=fmt(C);$('kFalta').textContent=fmt(faltaCx(M,V,C));
-  $('ritmo').innerHTML=`Atingido: <b>${pc(M?(V+C)/M:0)}</b> · ritmo ideal hoje: <b>${pc(IDEAL)}</b> · ideal até agora: <b>${fmt(M*IDEAL)} cx</b>`;
+  $('kMeta').textContent=fmt(up(M));$('kVenda').textContent=fmt(V);$('kCart').textContent=fmt(C);$('kFalta').textContent=fmt(faltaCx(M,V));
+  $('ritmo').innerHTML=`Atingido (faturado): <b>${pc(M?V/M:0)}</b> · com a carteira chegaria a <b>${pc(M?(V+C)/M:0)}</b> · ritmo ideal hoje: <b>${pc(IDEAL)}</b> · ideal até agora: <b>${fmt(M*IDEAL)} cx</b>`;
   if(!ps.length){$('lista').innerHTML=`<div class="empty">${q.length?'Nenhum produto encontrado para essa busca.':'Nenhum produto com meta nesse filtro.'}</div>`;return}
   $('lista').innerHTML=ps.map(p=>{
     const cls=p.meta===0?'ok':farolCls(p.pct),c=cod(p.k);
     return `<div class="prod ${cls}"><div class="n">${esc(D.skus[p.k])}</div><div class="c">${c?'cód. '+esc(c)+' · ':''}${esc(D.cats[p.cat])}${umaLoja?'':` · ${p.l.size} loja${p.l.size>1?'s':''}`}</div>
-    <div class="nums"><div><b>${fmt(p.meta)}<small> cx</small></b>meta</div><div><b>${fmt(p.v)}<small> cx</small></b>faturado</div><div><b>${fmt(p.c)}<small> cx</small></b>carteira</div><div class="f ${p.falta?'':'zero'}"><b>${p.falta?fmt(p.falta)+'<small> cx</small>':'✓'}</b>falta</div></div>
-    <div class="bar"><i style="width:${Math.min(100,p.pct*100)}%;background:var(--${cls})"></i><u style="left:${IDEAL*100}%"></u></div></div>`}).join('');
+    <div class="nums"><div><b>${fmt(p.meta)}<small> cx</small></b>meta</div><div><b>${fmt(p.v)}<small> cx</small></b>faturado</div><div class="cart"><b>${fmt(p.c)}<small> cx</small></b>em carteira</div><div class="f ${p.falta?'':'zero'}"><b>${p.falta?fmt(p.falta)+'<small> cx</small>':'✓'}</b>falta</div></div>
+    <div class="bar"><i class="bc" style="width:${Math.min(100,p.pcc*100)}%"></i><i style="width:${Math.min(100,p.pct*100)}%;background:var(--${cls})"></i><u style="left:${IDEAL*100}%"></u></div></div>`}).join('');
 }
 
 // ---- aba Valores (igual à aba FAT+VOL do Excel) ----
@@ -350,16 +353,16 @@ function valores(){
     m.set(k,o)}
   const card=(nome,o,tot)=>{
     const lr=o.vr-o.dr-o.tr,lk=o.vk-o.dk,ar=o.mr?lr/o.mr:0,fr=o.mr?(lr+o.cr)/o.mr:0,ak=o.mk?lk/o.mk:0,fk=o.mk?(lk+o.ck)/o.mk:0;
-    return `<div class="fam ${tot?'tot':''}"><div class="hd"><b>${esc(nome)}</b><span class="pill" style="background:${farol(fr)}">${pc(fr)} fat.+cart.</span></div>
+    return `<div class="fam ${tot?'tot':''}"><div class="hd"><b>${esc(nome)}</b><span class="pill" style="background:${farol(ar)}">${pc(ar)} atingido</span></div>
     <div class="sect">VALOR (R$)</div><div class="g3">
      <div><b>${brl(o.mr)}</b>Meta</div><div><b>${brl(o.vr)}</b>Venda</div><div class="${lr<0?'neg':''}"><b>${brl(lr)}</b>Venda líquida</div>
-     <div><b style="color:${farol(ar)}">${pc(ar)}</b>% Atingido</div><div><b>${brl(o.cr)}</b>Carteira</div><div class="neg"><b>${brl(Math.max(0,o.mr-lr-o.cr))}</b>Falta</div></div>
+     <div><b style="color:${farol(ar)}">${pc(ar)}</b>% Atingido</div><div><b>${brl(o.cr)}</b>Carteira</div><div class="neg"><b>${brl(Math.max(0,o.mr-lr))}</b>Falta</div></div>
     <div class="sect">VOLUME (KG)</div><div class="g3">
      <div><b>${kg(o.mk)}</b>Meta</div><div><b>${kg(o.vk)}</b>Venda</div><div class="${lk<0?'neg':''}"><b>${kg(lk)}</b>Venda líquida</div>
-     <div><b style="color:${farol(ak)}">${pc(ak)}</b>% Atingido</div><div><b>${kg(o.ck)}</b>Carteira</div><div><b style="color:${farol(fk)}">${pc(fk)}</b>% Fat.+cart.</div></div>
-    <div class="troca">Troca total: <b>${brl(o.tr)}</b> · Devolução: <b>${brl(o.dr)}</b></div></div>`};
+     <div><b style="color:${farol(ak)}">${pc(ak)}</b>% Atingido</div><div><b>${kg(o.ck)}</b>Carteira</div><div><b>${pc(fk)}</b>% com carteira</div></div>
+    <div class="troca">Com a carteira (R$) chegaria a <b>${pc(fr)}</b> · Troca total: <b>${brl(o.tr)}</b> · Devolução: <b>${brl(o.dr)}</b></div></div>`};
   const fams=[...m.keys()].sort((a,b)=>{const i=ORD.indexOf(a),j=ORD.indexOf(b);return (i<0?99:i)-(j<0?99:j)||alfa(a,b)});
-  $('vVal').innerHTML=rs.length?`<div class="ritmo">Ritmo ideal hoje: <b>${pc(IDEAL)}</b> (dia ${META.dia} de ${META.dias}) · venda líquida = venda − devolução − troca</div>`+card('TOTAL GERAL',T,true)+fams.map(f=>card(f,m.get(f))).join(''):'<div class="empty">Sem dados nesse filtro.</div>';
+  $('vVal').innerHTML=rs.length?`<div class="ritmo">Ritmo ideal hoje: <b>${pc(IDEAL)}</b> (dia ${META.dia} de ${META.dias}) · venda líquida = venda − devolução − troca · a carteira não conta para a meta</div>`+card('TOTAL GERAL',T,true)+fams.map(f=>card(f,m.get(f))).join(''):'<div class="empty">Sem dados nesse filtro.</div>';
 }
 
 // ---- aba Trocas (só MIX e IOGURTE; troca SAC não entra) ----
