@@ -8,6 +8,7 @@ from cryptography.hazmat.primitives.ciphers.aead import AESGCM
 SRC, DATA_REL, PINS_PATH, OUT = sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4]
 HERE = os.path.dirname(os.path.abspath(__file__))
 SUP = 'ALEX PORTES'
+SUPS = {'ALEX PORTES', 'BIANCA RICCI'}   # supervisões incluídas no painel
 ITER = 250000
 
 wb = openpyxl.load_workbook(SRC, read_only=True, data_only=True)
@@ -29,7 +30,7 @@ def nome_sku(s):
 
 raw = list(it)
 # vendedores da equipe = quem aparece na supervisão do Alex; pega TODAS as lojas/redes deles (qualquer supervisão)
-VEND = {r[ix['VENDEDOR']] for r in raw if r[ix['SUPERVISÃO']] == SUP}
+VEND = {r[ix['VENDEDOR']] for r in raw if r[ix['SUPERVISÃO']] in SUPS}
 rows = []
 for r in raw:
     vend = r[ix['VENDEDOR']]
@@ -64,7 +65,7 @@ def pack(rs, with_vend):
 pins_path = PINS_PATH
 pins = json.load(open(pins_path)) if os.path.exists(pins_path) else {}
 GER = 'MARCELO FIALHO'
-vendedores = sorted({x['v'] for x in rows if not x['v'].startswith(SUP)})
+vendedores = sorted({x['v'] for x in rows if not x['v'].startswith(SUP) and not str(x['v']).startswith('INATIVO')})
 for v in vendedores + [SUP, GER]:
     if v not in pins: pins[v] = f"{secrets.randbelow(900000) + 100000}"
 json.dump(pins, open(pins_path, 'w'), ensure_ascii=False, indent=1)
