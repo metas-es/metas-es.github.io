@@ -35,6 +35,7 @@ button.sec{background:transparent;color:#fff;border:1px solid rgba(255,255,255,.
 .nums{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;margin-top:8px;text-align:center}
 .nums div{font-size:11px;color:var(--mut)}
 .nums b{display:block;font-size:16px;color:var(--ink)}
+.nums b small{font-size:11px;font-weight:600;opacity:.75}
 .nums .f b{color:var(--bad)}
 .nums .f.zero b{color:var(--ok)}
 .bar{position:relative;height:7px;background:var(--trk);border-radius:4px;margin-top:8px;overflow:hidden}
@@ -131,10 +132,10 @@ body.desk #login{max-width:440px;margin:20px auto}
   </div>
   <div id="vCx">
   <div class="kpis">
-   <div class="kpi"><b id="kMeta">0</b><span>Meta cx</span></div>
-   <div class="kpi"><b id="kVenda">0</b><span>Faturado</span></div>
-   <div class="kpi"><b id="kCart">0</b><span>Em carteira</span></div>
-   <div class="kpi falta"><b id="kFalta">0</b><span>Falta</span></div>
+   <div class="kpi"><b id="kMeta">0</b><span>Meta (cx)</span></div>
+   <div class="kpi"><b id="kVenda">0</b><span>Faturado (cx)</span></div>
+   <div class="kpi"><b id="kCart">0</b><span>Carteira (cx)</span></div>
+   <div class="kpi falta"><b id="kFalta">0</b><span>Falta (cx)</span></div>
   </div>
   <div class="ritmo" id="ritmo"></div>
   <div class="card" id="resumo"></div>
@@ -316,7 +317,7 @@ function resumo(rs,buscando){
   const T={m:0,v:0,c:0};
   const linha=(n,o,cls='')=>{const p=o.m?(o.v+o.c)/o.m:1;return `<tr class="${cls}"><td>${n}</td><td>${fmt(up(o.m))}</td><td>${fmt(o.v+o.c)}</td><td>${fmt(faltaCx(o.m,o.v,o.c))}</td><td><span class="pill" style="background:${farol(p)}">${(p*100).toFixed(0)}%</span></td></tr>`};
   const body=ls.map(([n,o])=>{T.m+=o.m;T.v+=o.v;T.c+=o.c;return linha(esc(n)+` <span style="color:var(--mut);font-size:11px">(${o.l.size})</span>`,o)}).join('');
-  el.innerHTML=`<h2>Resumo por rede</h2><table class="redes"><tr><th>Rede (lojas)</th><th>Meta cx</th><th>Fat.+cart.</th><th>Falta</th><th>%</th></tr>${body}${ls.length>1?linha('Total',T,'tot'):''}</table>`;
+  el.innerHTML=`<h2>Resumo por rede <span style="font-weight:400;color:var(--mut);font-size:12px">· em caixas (cx)</span></h2><table class="redes"><tr><th>Rede (lojas)</th><th>Meta</th><th>Fat.+cart.</th><th>Falta</th><th>%</th></tr>${body}${ls.length>1?linha('Total',T,'tot'):''}</table>`;
 }
 function caixas(){
   const q=palavras(),umaLoja=$('fLoja').value!=='';
@@ -335,7 +336,7 @@ function caixas(){
   $('lista').innerHTML=ps.map(p=>{
     const cls=p.meta===0?'ok':farolCls(p.pct),c=cod(p.k);
     return `<div class="prod ${cls}"><div class="n">${esc(D.skus[p.k])}</div><div class="c">${c?'cód. '+esc(c)+' · ':''}${esc(D.cats[p.cat])}${umaLoja?'':` · ${p.l.size} loja${p.l.size>1?'s':''}`}</div>
-    <div class="nums"><div><b>${fmt(p.meta)}</b>meta</div><div><b>${fmt(p.v)}</b>faturado</div><div><b>${fmt(p.c)}</b>carteira</div><div class="f ${p.falta?'':'zero'}"><b>${p.falta?fmt(p.falta):'✓'}</b>falta</div></div>
+    <div class="nums"><div><b>${fmt(p.meta)}<small> cx</small></b>meta</div><div><b>${fmt(p.v)}<small> cx</small></b>faturado</div><div><b>${fmt(p.c)}<small> cx</small></b>carteira</div><div class="f ${p.falta?'':'zero'}"><b>${p.falta?fmt(p.falta)+'<small> cx</small>':'✓'}</b>falta</div></div>
     <div class="bar"><i style="width:${Math.min(100,p.pct*100)}%;background:var(--${cls})"></i><u style="left:${IDEAL*100}%"></u></div></div>`}).join('');
 }
 
