@@ -80,6 +80,11 @@ button.sec{background:transparent;color:#fff;border:1px solid rgba(255,255,255,.
 .periodo .perrow select{width:auto;flex:1;min-width:110px;margin:0}
 .periodo .ordtr{margin:0}
 .ritmo.per{font-size:13px}
+.faixas .fxsub,.alerta .fxsub{font-size:11.5px;color:var(--mut);margin:2px 0 8px}
+.fxl{border-top:1px solid var(--line);padding:8px 0}
+.fxl .fxn{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+.fxl .fxt{font-size:12.5px;margin-top:4px}
+.alerta h2{color:var(--bad)}
 .mais{width:100%;margin-top:8px}
 .lojasel{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:13px}
 .troca{font-size:11.5px;color:var(--mut);margin-top:8px;border-top:1px dashed var(--line);padding-top:6px}
@@ -184,7 +189,7 @@ const LS={get:k=>{try{return localStorage.getItem(k)}catch(e){return null}},set:
 const SUB=`Relatório de ${META.data} · dia ${META.dia} de ${META.dias}`;
 // colunas de cada linha de dados (ver build.py)
 const LOJA=0,CAT=1,SKU=2,MCX=3,VCX=4,CCX=5,FAM=6,MR=7,VR=8,DR=9,TR=10,CR=11,MK=12,VK=13,DK=14,CK=15,TSAC=16,VEND=17,SUPV=18;
-let D=null,ABA='cx',ORDTR='r',FAMTR='meta',PER=null,VERTUDO={l:false,p:false};
+let D=null,ABA='cx',ORDTR='r',FAMTR='meta',PER=null,VERTUDO={l:false,p:false,a:false};
 const MESN=['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
 const mesLab=i=>{const m=D.meses[i];return MESN[+m.slice(5)-1]+'/'+m.slice(2,4)+(i===D.mesAtual&&!D.atualNoHist?' (parcial)':'')};
 function prepHist(){ // histórico de trocas (fechamentos) no mesmo formato das linhas do relatório
@@ -366,6 +371,30 @@ function caixas(){
     <div class="bar"><i class="bc" style="width:${sm?0:Math.min(100,p.pcc*100)}%"></i><i style="width:${sm?0:Math.min(100,p.pct*100)}%;background:var(--${cls})"></i><u style="left:${IDEAL*100}%"></u></div></div>`}).join('');
 }
 
+// ---- quanto falta para a próxima faixa da Nova RV (80% = 50 · 95% = 75 · 100% = 100; troca < 2% = 100 · até 2,5% = 50) ----
+function faixas(rs){
+  const a={fat:{m:0,l:0},mix:{m:0,l:0},iog:{m:0,l:0}},tv={v:0,t:0};
+  for(const r of rs){const l=r[VR]-r[DR]-r[TR]-r[TSAC],f=famEf(r);
+    a.fat.m+=r[MR];a.fat.l+=l;
+    if(f==='MIX'){a.mix.m+=r[MR];a.mix.l+=l}
+    if(f==='IOGURTE'){a.iog.m+=r[MR];a.iog.l+=l}
+    if(f==='MIX'||f==='IOGURTE'){tv.v+=r[VR];tv.t+=r[TR]}}
+  const FX=[[.8,50],[.95,75],[1,100]];
+  const cor=f=>f===100?'var(--ok)':f>0?'var(--warn)':'var(--bad)';
+  const linha=(nome,o)=>{if(!o.m)return '';const p=o.l/o.m,fx=p>=1?100:p>=.95?75:p>=.8?50:0,prox=FX.find(([x])=>p<x);
+    const txt=prox?`Faltam <b>${brl(prox[0]*o.m-o.l)}</b> para ${Math.round(prox[0]*100)}% (faixa ${prox[1]}%)`:'Faixa máxima garantida ✅';
+    return `<div class="fxl"><div class="fxn"><b>${nome}</b><span class="pill" style="background:${cor(fx)}">${pc(p)} · faixa ${fx}%</span></div><div class="fxt">${txt}</div></div>`};
+  let tr='';
+  if(tv.v>0){const p=tv.t/tv.v,fx=p<.02?100:p<=.025?50:0;
+    const txt=p<.02?`Dentro da meta: ainda cabem <b>${brl(.02*tv.v-tv.t)}</b> de troca até chegar a 2%`
+      :p<=.025?`Entre 2% e 2,5% (meio prêmio). Para voltar abaixo de 2% faltam <b>${brl(tv.t/.02-tv.v)}</b> de venda Mix+Iogurte sem nova troca`
+      :`Acima do teto. Para cair a 2,5% faltam <b>${brl(tv.t/.025-tv.v)}</b> de venda Mix+Iogurte sem nova troca (troca de ${brl(tv.t)} no mês)`;
+    tr=`<div class="fxl"><div class="fxn"><b>Troca Mix+Iogurte</b><span class="pill" style="background:${cor(fx)}">${pc(p)} · faixa ${fx}%</span></div><div class="fxt">${txt}</div></div>`}
+  return `<div class="fam faixas"><div class="hd"><b>🎯 Quanto falta para a próxima faixa</b></div>
+    <div class="fxsub">Nova RV · mês do relatório · só o faturado conta · Mix sem bebida láctea · positivação não vem no relatório</div>
+    ${linha('Faturamento',a.fat)}${linha('Mix',a.mix)}${linha('Iogurte',a.iog)}${tr}</div>`;
+}
+
 // ---- aba Valores (igual à aba FAT+VOL do Excel) ----
 const ORD=['MIX','UHT LITRO','IOGURTE','MUSSARELA','LEITE EM PO','BEBIDA LÁCTEA'];
 function valores(){
@@ -385,7 +414,7 @@ function valores(){
      <div><b style="color:${farol(ak)}">${pc(ak)}</b>% Atingido</div><div><b>${kg(o.ck)}</b>Carteira</div><div><b>${pc(fk)}</b>% com carteira</div></div>
     <div class="troca">Com a carteira (R$) chegaria a <b>${pc(fr)}</b> · Troca total: <b>${brl(o.tr)}</b> · Devolução: <b>${brl(o.dr)}</b></div></div>`};
   const fams=[...m.keys()].sort((a,b)=>{const i=ORD.indexOf(a),j=ORD.indexOf(b);return (i<0?99:i)-(j<0?99:j)||alfa(a,b)});
-  $('vVal').innerHTML=rs.length?`<div class="ritmo">Ritmo ideal hoje: <b>${pc(IDEAL)}</b> (dia ${META.dia} de ${META.dias}) · venda líquida = venda − devolução − troca · a carteira não conta para a meta</div>`+card('TOTAL GERAL',T,true)+fams.map(f=>card(f,m.get(f))).join(''):'<div class="empty">Sem dados nesse filtro.</div>';
+  $('vVal').innerHTML=rs.length?`<div class="ritmo">Ritmo ideal hoje: <b>${pc(IDEAL)}</b> (dia ${META.dia} de ${META.dias}) · venda líquida = venda − devolução − troca · a carteira não conta para a meta</div>`+faixas(rs)+card('TOTAL GERAL',T,true)+fams.map(f=>card(f,m.get(f))).join(''):'<div class="empty">Sem dados nesse filtro.</div>';
 }
 
 // ---- aba Trocas (troca SAC não entra; filtro de família; padrão = MIX + IOGURTE, que vale para a meta) ----
@@ -432,6 +461,17 @@ function trocas(){
     const ms=[];for(let i=de;i<=ate;i++)ms.push({i,...(pm.get(i)||{v:0,t:0})});
     const mx=Math.max(1,...ms.map(o=>o.t));
     h+=`<div class="card"><h2>Troca mês a mês${fl!==''?' nesta loja':''}</h2>${ms.map(o=>`<div class="trl"><div class="trn">${esc(mesLab(o.i))}</div><div class="trv"><b>${brl(o.t)}</b><span>${fp(pct(o.t,o.v))}</span></div><div class="bar"><i style="width:${o.t/mx*100}%;background:var(--bad)"></i></div><div class="trs">venda ${brl(o.v)}</div></div>`).join('')}</div>`;
+  }
+  // alerta: lojas com troca subindo 3 meses fechados seguidos (mesmos filtros, sem o período)
+  const lc=D.atualNoHist?D.mesAtual:D.mesAtual-1;
+  if(fl===''&&lc>=2&&D.hd.length){
+    const am=new Map();
+    for(const r of base(D.hd))if(r.mes>=lc-2&&r.mes<=lc&&okFam(famEf(r))&&(fc===''||r[CAT]==fc)){const o=am.get(r[LOJA])||[0,0,0];o[r.mes-(lc-2)]+=r[TR];am.set(r[LOJA],o)}
+    const sobe=[...am].filter(([,t])=>t[0]<t[1]&&t[1]<t[2]&&t[2]>=300).sort((x,y)=>(y[1][2]-y[1][0])-(x[1][2]-x[1][0]));
+    const lim3=VERTUDO.a?sobe:sobe.slice(0,8);
+    h+=`<div class="card alerta"><h2>⚠️ Troca subindo 3 meses seguidos (${sobe.length})</h2><div class="fxsub">${esc(mesLab(lc-2))} → ${esc(mesLab(lc-1))} → ${esc(mesLab(lc))} · meses fechados · troca do último mês a partir de R$ 300</div>
+      ${sobe.length?lim3.map(([k,t])=>`<div class="trl" data-l="${k}"><div class="trn">${esc(D.lojas[k])}<small>${esc(D.redes[k])}</small></div><div class="trv"><b>${brl(t[2])}</b><span>+${brl(t[2]-t[0])}</span></div><div class="trs">${t.map(brl).join(' → ')} · toque para ver a loja ›</div></div>`).join(''):'<div class="empty">Nenhuma loja com troca subindo 3 meses seguidos neste filtro. 👍</div>'}
+      ${sobe.length>8?`<button class="mais" data-m="a">${VERTUDO.a?'Mostrar menos':'Mostrar todas'}</button>`:''}</div>`;
   }
   if(fl!=='')h+=`<div class="card lojasel"><div>Loja: <b>${esc(D.lojas[+fl])}</b></div><button id="trVolta">‹ Ver todas as lojas</button></div>`;
   else h+=`<div class="card"><h2>Lojas que mais trocam · ${esc(perTxt)} (${lojas.length})</h2>${lojas.length?lim(lojas,'l',15).map(o=>linha(D.lojas[o.k],D.redes[o.k],o,maxL,o.k)).join(''):'<div class="empty">Nenhuma troca.</div>'}
