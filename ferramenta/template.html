@@ -75,6 +75,11 @@ button.sec{background:transparent;color:#fff;border:1px solid rgba(255,255,255,.
 .ordtr{font-size:12px;color:var(--mut);margin:0 2px 10px;display:flex;gap:6px;align-items:center;flex-wrap:wrap}
 .ordtr button,.mais,.lojasel button{width:auto;margin:0;padding:6px 10px;font-size:12.5px;background:var(--card);color:var(--pri);border:1px solid var(--pri)}
 .ordtr button.on{background:var(--pri);color:#fff}
+.periodo .perrow{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-bottom:8px;font-size:12.5px}
+.periodo .perrow label{margin:0;font-size:12.5px}
+.periodo .perrow select{width:auto;flex:1;min-width:110px;margin:0}
+.periodo .ordtr{margin:0}
+.ritmo.per{font-size:13px}
 .mais{width:100%;margin-top:8px}
 .lojasel{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:13px}
 .troca{font-size:11.5px;color:var(--mut);margin-top:8px;border-top:1px dashed var(--line);padding-top:6px}
@@ -103,7 +108,7 @@ body.desk #lista .prod,body.desk #vVal .fam{margin:0}
 body.desk #lista .empty,body.desk #vVal .ritmo,body.desk #vVal .empty{grid-column:1/-1}
 body.desk #vVal .fam.tot{grid-column:1/-1}
 body.desk #vTr{display:grid;grid-template-columns:1fr 1fr;gap:10px;align-items:start}
-body.desk #vTr>.kpis,body.desk #vTr>.ritmo,body.desk #vTr>.ordtr,body.desk #vTr>.lojasel{grid-column:1/-1}
+body.desk #vTr>.kpis,body.desk #vTr>.ritmo,body.desk #vTr>.ordtr,body.desk #vTr>.lojasel,body.desk #vTr>.periodo{grid-column:1/-1}
 body.desk #vTr>.card{margin:0}
 body.desk .tabs{max-width:620px}
 body.desk #login{max-width:440px;margin:20px auto}
@@ -179,7 +184,17 @@ const LS={get:k=>{try{return localStorage.getItem(k)}catch(e){return null}},set:
 const SUB=`Relatório de ${META.data} · dia ${META.dia} de ${META.dias}`;
 // colunas de cada linha de dados (ver build.py)
 const LOJA=0,CAT=1,SKU=2,MCX=3,VCX=4,CCX=5,FAM=6,MR=7,VR=8,DR=9,TR=10,CR=11,MK=12,VK=13,DK=14,CK=15,TSAC=16,VEND=17,SUPV=18;
-let D=null,ABA='cx',ORDTR='r',FAMTR='meta',VERTUDO={l:false,p:false};
+let D=null,ABA='cx',ORDTR='r',FAMTR='meta',PER=null,VERTUDO={l:false,p:false};
+const MESN=['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+const mesLab=i=>{const m=D.meses[i];return MESN[+m.slice(5)-1]+'/'+m.slice(2,4)+(i===D.mesAtual&&!D.atualNoHist?' (parcial)':'')};
+function prepHist(){ // histórico de trocas (fechamentos) no mesmo formato das linhas do relatório
+  if(!D.meses){const dt=META.data;D.meses=[dt.slice(6)+'-'+dt.slice(3,5)];D.mesAtual=0;D.h=[];D.atualNoHist=false}
+  const g=!!D.vends;
+  D.hd=D.h.map(h=>{const r=new Array(g?19:17).fill(0);r[LOJA]=h[1];r[CAT]=h[2];r[SKU]=h[3];r[FAM]=h[4];r[VR]=h[5];r[TR]=h[6];r[TSAC]=h[7];
+    if(g){r[VEND]=h[8];r[SUPV]=h[9]}r.mes=h[0];return r});
+  D.d.forEach(r=>{r.mes=D.mesAtual});
+  PER={de:D.mesAtual,ate:D.mesAtual};
+}
 
 // ---- tema e layout ----
 function aplicaTema(t){document.body.classList.toggle('escuro',t==='escuro');$('bTema').textContent=t==='escuro'?'☀️ Claro':'🌙 Escuro'}
@@ -261,7 +276,7 @@ async function entrar(auto){
   $('err').textContent='';$('pin').value='';
   $('login').classList.add('hide');$('app').classList.remove('hide');$('sair').classList.remove('hide');
   $('sub').textContent=`${nome} · relatório de ${META.data} · dia ${META.dia} de ${META.dias}`;
-  montar();
+  prepHist();montar();
 }
 $('entrar').onclick=()=>entrar(false);
 $('pin').addEventListener('keydown',e=>{if(e.key==='Enter')entrar(false)});
@@ -291,7 +306,7 @@ function montar(){
   aba(ABA,true);atualizar();
 }
 function atualizar(){ // cada filtro só oferece o que existe dentro dos filtros anteriores
-  let rs=D.d;
+  let rs=ABA==='tr'?D.d.concat(D.hd):D.d;
   if(D.vends){
     const fs=$('fSup').value;if(fs!=='')rs=rs.filter(r=>r[SUPV]==fs);
     encher('fVend',[...new Set(rs.map(r=>r[VEND]))].sort((a,b)=>alfa(D.vends[a],D.vends[b])).map(i=>[i,D.vends[i]]),'Todos');
@@ -303,9 +318,9 @@ function atualizar(){ // cada filtro só oferece o que existe dentro dos filtros
   encher('fCat',[...new Set(rs.map(r=>r[CAT]))].sort((a,b)=>alfa(D.cats[a],D.cats[b])).map(i=>[i,D.cats[i]]),'Todas');
   render();
 }
-function base(){ // linhas dentro de supervisão, vendedor e rede
+function base(src){ // linhas dentro de supervisão, vendedor e rede
   const fv=D.vends?$('fVend').value:'',fs=D.vends?$('fSup').value:'',fr=$('fRede').value;
-  return D.d.filter(r=>(fv===''||r[VEND]==fv)&&(fs===''||r[SUPV]==fs)&&(fr===''||D.redes[r[LOJA]]===fr));
+  return (src||D.d).filter(r=>(fv===''||r[VEND]==fv)&&(fs===''||r[SUPV]==fs)&&(fr===''||D.redes[r[LOJA]]===fr));
 }
 const filtradas=()=>{const fl=$('fLoja').value,fc=$('fCat').value;return base().filter(r=>(fl===''||r[LOJA]==fl)&&(fc===''||r[CAT]==fc))};
 const palavras=()=>norm($('fBusca').value).split(/\s+/).filter(Boolean);
@@ -314,7 +329,7 @@ const textoSku=(k,cat)=>{const c=cod(k);return norm(D.skus[k]+' '+D.cats[cat]+' 
 const farolCls=p=>{if(!IDEAL)return 'ok';const r=p/IDEAL;return r>=1?'ok':r>=.8?'warn':'bad'};
 const farol=p=>`var(--${farolCls(p)})`;
 function aba(a,semRender){ABA=a;[['cx','tCx','vCx'],['val','tVal','vVal'],['tr','tTr','vTr']].forEach(([k,t,v])=>{$(t).classList.toggle('on',a===k);$(v).classList.toggle('hide',a!==k)});
-  $('buscaWrap').classList.toggle('hide',a==='val');if(!semRender)render()}
+  $('buscaWrap').classList.toggle('hide',a==='val');if(!semRender)atualizar()}
 function render(){if(!D)return;if(ABA==='val')valores();else if(ABA==='tr')trocas();else caixas()}
 
 // ---- aba Caixas ----
@@ -379,11 +394,14 @@ const famEf=r=>/^BEBIDA L[ÁA]CTEA/.test(D.cats[r[CAT]])?'BEBIDA LÁCTEA':D.fams
 const FAMS_META=['MIX','IOGURTE'];
 function trocas(){
   const fl=$('fLoja').value,fc=$('fCat').value,q=palavras();
-  const todasF=[...new Set(base().map(famEf))].sort((a,b)=>(ORD.indexOf(a)+1||99)-(ORD.indexOf(b)+1||99)||a.localeCompare(b));
+  const de=Math.min(PER.de,PER.ate),ate=Math.max(PER.de,PER.ate);
+  const fonte=(D.atualNoHist?D.hd:D.d.concat(D.hd)).filter(r=>r.mes>=de&&r.mes<=ate);
+  const perTxt=de===ate?mesLab(de):mesLab(de).replace(' (parcial)','')+' a '+mesLab(ate);
+  const todasF=[...new Set(base(fonte).map(famEf))].sort((a,b)=>(ORD.indexOf(a)+1||99)-(ORD.indexOf(b)+1||99)||a.localeCompare(b));
   if(FAMTR!=='meta'&&FAMTR!=='todas'&&!todasF.includes(FAMTR))FAMTR='meta';
   const okFam=f=>FAMTR==='todas'?true:FAMTR==='meta'?FAMS_META.includes(f):f===FAMTR;
   const nomeSel=FAMTR==='meta'?'MIX+IOG':FAMTR==='todas'?'todas as famílias':FAMTR;
-  let rs=base().filter(r=>okFam(famEf(r))&&(fc===''||r[CAT]==fc));
+  let rs=base(fonte).filter(r=>okFam(famEf(r))&&(fc===''||r[CAT]==fc));
   if(q.length)rs=rs.filter(r=>{const t=textoSku(r[SKU],r[CAT]);return q.every(w=>t.includes(w))});
   const rl=fl===''?rs:rs.filter(r=>r[LOJA]==fl);
   const pct=(t,v)=>v>0?t/v:(t>0?Infinity:0);
@@ -400,19 +418,33 @@ function trocas(){
     <div class="trv"><b>${brl(o.t)}</b><span>${fp(o.p)}</span></div><div class="bar"><i style="width:${o.t/max*100}%;background:var(--bad)"></i></div>
     <div class="trs">venda ${brl(o.v)}${click!==undefined?' · toque para ver os produtos ›':''}</div></div>`;
   const lim=(a,k,n)=>VERTUDO[k]?a:a.slice(0,n);
-  let h=`<div class="kpis k3"><div class="kpi"><b>${brl(tot.v)}</b><span>Venda ${esc(nomeSel)}</span></div><div class="kpi falta"><b>${brl(tot.t)}</b><span>Troca R$</span></div><div class="kpi falta"><b>${fp(pct(tot.t,tot.v))}</b><span>% de troca</span></div></div>
+  const mOpt=sel=>D.meses.map((m,i)=>`<option value="${i}"${i===sel?' selected':''}>${esc(mesLab(i).replace(' (parcial)',''))}</option>`).join('');
+  const ano=D.meses[D.mesAtual].slice(0,4),ini=D.meses.findIndex(m=>m.startsWith(ano));
+  let h=`<div class="card periodo"><div class="perrow"><label for="pDe">Período: de</label><select id="pDe">${mOpt(PER.de)}</select><label for="pAte">até</label><select id="pAte">${mOpt(PER.ate)}</select></div>
+    <div class="ordtr"><button data-p="mes" class="${de===ate&&ate===D.mesAtual?'on':''}">Mês atual</button><button data-p="ant" class="${de===ate&&ate===D.mesAtual-1?'on':''}" ${D.mesAtual>0?'':'disabled'}>Mês anterior</button><button data-p="ano" class="${de===ini&&ate===D.mesAtual?'on':''}">Ano ${ano} até agora</button></div></div>
+  <div class="ritmo per">📅 Mostrando: <b>${esc(perTxt)}</b>${de===ate?'':' (soma dos meses)'}</div>
+  <div class="kpis k3"><div class="kpi"><b>${brl(tot.v)}</b><span>Venda ${esc(nomeSel)} · ${esc(perTxt)}</span></div><div class="kpi falta"><b>${brl(tot.t)}</b><span>Troca R$ · ${esc(perTxt)}</span></div><div class="kpi falta"><b>${fp(pct(tot.t,tot.v))}</b><span>% de troca · ${esc(perTxt)}</span></div></div>
   <div class="ordtr famtr">Família: <button data-fa="meta" class="${FAMTR==='meta'?'on':''}">Mix + Iogurte (meta)</button><button data-fa="todas" class="${FAMTR==='todas'?'on':''}">Todas</button>${todasF.map(f=>`<button data-fa="${esc(f)}" class="${FAMTR===f?'on':''}">${esc(f)}</button>`).join('')}</div>
   <div class="ritmo">${FAMTR==='meta'?'A meta de troca conta só <b>MIX</b> (sem bebida láctea) e <b>IOGURTE</b>':'Visão de acompanhamento: <b>'+esc(nomeSel)+'</b> · para a meta só contam Mix (sem bebida láctea) e Iogurte'} · % troca = troca ÷ venda R$ (troca SAC não entra)${Object.keys(fam).sort((a,b)=>fam[b].t-fam[a].t).map(f=>` · ${esc(f)}: <b>${fp(pct(fam[f].t,fam[f].v))}</b>`).join('')}</div>
   <div class="ordtr">Ordenar por: <button data-o="r" class="${ORDTR==='r'?'on':''}">Maior troca R$</button><button data-o="p" class="${ORDTR==='p'?'on':''}">Maior % troca</button></div>`;
+  if(ate>de){ // evolução mês a mês dentro do período, com os mesmos filtros
+    const pm=new Map();for(const r of rl){const o=pm.get(r.mes)||{v:0,t:0};o.v+=r[VR];o.t+=r[TR];pm.set(r.mes,o)}
+    const ms=[];for(let i=de;i<=ate;i++)ms.push({i,...(pm.get(i)||{v:0,t:0})});
+    const mx=Math.max(1,...ms.map(o=>o.t));
+    h+=`<div class="card"><h2>Troca mês a mês${fl!==''?' nesta loja':''}</h2>${ms.map(o=>`<div class="trl"><div class="trn">${esc(mesLab(o.i))}</div><div class="trv"><b>${brl(o.t)}</b><span>${fp(pct(o.t,o.v))}</span></div><div class="bar"><i style="width:${o.t/mx*100}%;background:var(--bad)"></i></div><div class="trs">venda ${brl(o.v)}</div></div>`).join('')}</div>`;
+  }
   if(fl!=='')h+=`<div class="card lojasel"><div>Loja: <b>${esc(D.lojas[+fl])}</b></div><button id="trVolta">‹ Ver todas as lojas</button></div>`;
-  else h+=`<div class="card"><h2>Lojas que mais trocam (${lojas.length})</h2>${lojas.length?lim(lojas,'l',15).map(o=>linha(D.lojas[o.k],D.redes[o.k],o,maxL,o.k)).join(''):'<div class="empty">Nenhuma troca.</div>'}
+  else h+=`<div class="card"><h2>Lojas que mais trocam · ${esc(perTxt)} (${lojas.length})</h2>${lojas.length?lim(lojas,'l',15).map(o=>linha(D.lojas[o.k],D.redes[o.k],o,maxL,o.k)).join(''):'<div class="empty">Nenhuma troca.</div>'}
     ${lojas.length>15?`<button class="mais" data-m="l">${VERTUDO.l?'Mostrar menos':'Mostrar todas'}</button>`:''}</div>`;
-  h+=`<div class="card"><h2>Produtos que mais trocam${fl!==''?' nesta loja':''} (${prods.length})</h2>${prods.length?lim(prods,'p',20).map(o=>linha(D.skus[o.k],o.f+(cod(o.k)?' · cód. '+cod(o.k):''),o,maxT)).join(''):'<div class="empty">Nenhuma troca.</div>'}
+  h+=`<div class="card"><h2>Produtos que mais trocam${fl!==''?' nesta loja':''} · ${esc(perTxt)} (${prods.length})</h2>${prods.length?lim(prods,'p',20).map(o=>linha(D.skus[o.k],o.f+(cod(o.k)?' · cód. '+cod(o.k):''),o,maxT)).join(''):'<div class="empty">Nenhuma troca.</div>'}
     ${prods.length>20?`<button class="mais" data-m="p">${VERTUDO.p?'Mostrar menos':'Mostrar todos'}</button>`:''}</div>`;
   const el=$('vTr');el.innerHTML=h;
   el.querySelectorAll('[data-l]').forEach(e=>e.onclick=()=>{$('fLoja').value=e.dataset.l;render();el.scrollIntoView({behavior:'smooth'})});
   el.querySelectorAll('[data-o]').forEach(e=>e.onclick=()=>{ORDTR=e.dataset.o;render()});
   el.querySelectorAll('[data-fa]').forEach(e=>e.onclick=()=>{FAMTR=e.dataset.fa;render()});
+  $('pDe').onchange=()=>{PER.de=+$('pDe').value;render()};$('pAte').onchange=()=>{PER.ate=+$('pAte').value;render()};
+  el.querySelectorAll('[data-p]').forEach(e=>e.onclick=()=>{const p=e.dataset.p,a=D.meses[D.mesAtual].slice(0,4);
+    PER=p==='mes'?{de:D.mesAtual,ate:D.mesAtual}:p==='ant'?{de:D.mesAtual-1,ate:D.mesAtual-1}:{de:D.meses.findIndex(m=>m.startsWith(a)),ate:D.mesAtual};render()});
   el.querySelectorAll('[data-m]').forEach(e=>e.onclick=()=>{VERTUDO[e.dataset.m]=!VERTUDO[e.dataset.m];render()});
   const v=$('trVolta');if(v)v.onclick=()=>{$('fLoja').value='';render()};
 }
