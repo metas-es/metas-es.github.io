@@ -87,6 +87,8 @@ button.sec{background:transparent;color:#fff;border:1px solid rgba(255,255,255,.
 .fxl .fxn{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
 .fxl .fxt{font-size:12.5px;margin-top:4px}
 .alerta h2{color:var(--bad)}
+.altx{font-size:13.5px;margin-top:4px}
+.altx .neg{color:var(--bad)}
 .altm{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;margin:6px 0 2px;text-align:center}
 .altm div{background:var(--bg);border-radius:6px;padding:4px 2px}
 .altm span{display:block;font-size:10.5px;color:var(--mut)}
@@ -198,6 +200,7 @@ const SUB=`Relatório de ${META.data} · dia ${META.dia} de ${META.dias}`;
 const LOJA=0,CAT=1,SKU=2,MCX=3,VCX=4,CCX=5,FAM=6,MR=7,VR=8,DR=9,TR=10,CR=11,MK=12,VK=13,DK=14,CK=15,TSAC=16,VEND=17,SUPV=18;
 let D=null,ABA='cx',ORDTR='r',FAMTR='meta',PER=null,VERTUDO={l:false,p:false,a:false};
 const MESN=['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+const MESX=['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
 const mesLab=i=>{const m=D.meses[i];return MESN[+m.slice(5)-1]+'/'+m.slice(2,4)+(i===D.mesAtual&&!D.atualNoHist?' (parcial)':'')};
 function prepHist(){ // histórico de trocas (fechamentos) no mesmo formato das linhas do relatório
   if(!D.meses){const dt=META.data;D.meses=[dt.slice(6)+'-'+dt.slice(3,5)];D.mesAtual=0;D.h=[];D.atualNoHist=false}
@@ -477,8 +480,8 @@ function trocas(){
     for(const r of base(D.hd))if(r.mes>=lc-2&&r.mes<=lc&&okFam(famEf(r))&&(fc===''||r[CAT]==fc)){const o=am.get(r[LOJA])||[0,0,0];o[r.mes-(lc-2)]+=r[TR];am.set(r[LOJA],o)}
     const sobe=[...am].filter(([,t])=>t[0]<t[1]&&t[1]<t[2]&&t[2]>=300).sort((x,y)=>(y[1][2]-y[1][0])-(x[1][2]-x[1][0]));
     const lim3=VERTUDO.a?sobe:sobe.slice(0,8);
-    h+=`<div class="card alerta"><h2>⚠️ Troca subindo 3 meses seguidos (${sobe.length})</h2><div class="fxsub">Troca em R$ de cada loja nos últimos 3 meses fechados (cada mês separado, não é acumulado). Aumento = último mês menos o primeiro. Só lojas com troca de R$ 300 ou mais no último mês.</div>
-      ${sobe.length?lim3.map(([k,t])=>`<div class="trl" data-l="${k}"><div class="trn">${esc(D.lojas[k])}<small>${esc(D.redes[k])}</small></div><div class="altm">${t.map((x,i)=>`<div><span>${esc(mesLab(lc-2+i))}</span><b>${brl(x)}</b></div>`).join('')}<div class="altd"><span>Aumento</span><b>+${brl(t[2]-t[0])}</b></div></div><div class="trs">troca em R$ de cada mês · toque para ver a loja ›</div></div>`).join(''):'<div class="empty">Nenhuma loja com troca subindo 3 meses seguidos neste filtro. 👍</div>'}
+    h+=`<div class="card alerta"><h2>Lojas com a troca subindo há 3 meses (${sobe.length})</h2><div class="fxsub">${esc(MESX[+D.meses[lc-2].slice(5)-1])}, ${esc(MESX[+D.meses[lc-1].slice(5)-1])} e ${esc(MESX[+D.meses[lc].slice(5)-1])}: a troca aumentou nos três meses. Toque na loja para ver os produtos.</div>
+      ${sobe.length?lim3.map(([k,t])=>`<div class="trl" data-l="${k}"><div class="trn">${esc(D.lojas[k])}<small>${esc(D.redes[k])}</small></div><div class="altx">Troca subiu de <b>${brl(t[0])}</b> em ${esc(MESX[+D.meses[lc-2].slice(5)-1])} para <b class="neg">${brl(t[2])}</b> em ${esc(MESX[+D.meses[lc].slice(5)-1])}</div></div>`).join(''):'<div class="empty">Nenhuma loja com troca subindo 3 meses seguidos neste filtro. 👍</div>'}
       ${sobe.length>8?`<button class="mais" data-m="a">${VERTUDO.a?'Mostrar menos':'Mostrar todas'}</button>`:''}</div>`;
   }
   if(fl!=='')h+=`<div class="card lojasel"><div>Loja: <b>${esc(D.lojas[+fl])}</b></div><button id="trVolta">‹ Ver todas as lojas</button></div>`;
