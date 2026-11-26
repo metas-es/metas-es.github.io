@@ -80,6 +80,8 @@ button.sec{background:transparent;color:#fff;border:1px solid rgba(255,255,255,.
 .periodo .perrow select{width:auto;flex:1;min-width:110px;margin:0}
 .periodo .ordtr{margin:0}
 .ritmo.per{font-size:13px}
+.ordtr.exp button.wa{background:#1fa855;border-color:#1fa855;color:#fff}
+#trMsg{font-size:12px;color:var(--ok)}
 .faixas .fxsub,.alerta .fxsub{font-size:11.5px;color:var(--mut);margin:2px 0 8px}
 .fxl{border-top:1px solid var(--line);padding:8px 0}
 .fxl .fxn{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
@@ -452,6 +454,7 @@ function trocas(){
   let h=`<div class="card periodo"><div class="perrow"><label for="pDe">Período: de</label><select id="pDe">${mOpt(PER.de)}</select><label for="pAte">até</label><select id="pAte">${mOpt(PER.ate)}</select></div>
     <div class="ordtr"><button data-p="mes" class="${de===ate&&ate===D.mesAtual?'on':''}">Mês atual</button><button data-p="ant" class="${de===ate&&ate===D.mesAtual-1?'on':''}" ${D.mesAtual>0?'':'disabled'}>Mês anterior</button><button data-p="ano" class="${de===ini&&ate===D.mesAtual?'on':''}">Ano ${ano} até agora</button></div></div>
   <div class="ritmo per">📅 Mostrando: <b>${esc(perTxt)}</b>${de===ate?'':' (soma dos meses)'}</div>
+  <div class="ordtr exp"><button id="trWa" class="wa">📤 Enviar no WhatsApp</button><button id="trCopia">📋 Copiar texto</button><span id="trMsg"></span></div>
   <div class="kpis k3"><div class="kpi"><b>${brl(tot.v)}</b><span>Venda ${esc(nomeSel)} · ${esc(perTxt)}</span></div><div class="kpi falta"><b>${brl(tot.t)}</b><span>Troca R$ · ${esc(perTxt)}</span></div><div class="kpi falta"><b>${fp(pct(tot.t,tot.v))}</b><span>% de troca · ${esc(perTxt)}</span></div></div>
   <div class="ordtr famtr">Família: <button data-fa="meta" class="${FAMTR==='meta'?'on':''}">Mix + Iogurte (meta)</button><button data-fa="todas" class="${FAMTR==='todas'?'on':''}">Todas</button>${todasF.map(f=>`<button data-fa="${esc(f)}" class="${FAMTR===f?'on':''}">${esc(f)}</button>`).join('')}</div>
   <div class="ritmo">${FAMTR==='meta'?'A meta de troca conta só <b>MIX</b> (sem bebida láctea) e <b>IOGURTE</b>':'Visão de acompanhamento: <b>'+esc(nomeSel)+'</b> · para a meta só contam Mix (sem bebida láctea) e Iogurte'} · % troca = troca ÷ venda R$ (troca SAC não entra)${Object.keys(fam).sort((a,b)=>fam[b].t-fam[a].t).map(f=>` · ${esc(f)}: <b>${fp(pct(fam[f].t,fam[f].v))}</b>`).join('')}</div>
@@ -482,6 +485,24 @@ function trocas(){
   el.querySelectorAll('[data-l]').forEach(e=>e.onclick=()=>{$('fLoja').value=e.dataset.l;render();el.scrollIntoView({behavior:'smooth'})});
   el.querySelectorAll('[data-o]').forEach(e=>e.onclick=()=>{ORDTR=e.dataset.o;render()});
   el.querySelectorAll('[data-fa]').forEach(e=>e.onclick=()=>{FAMTR=e.dataset.fa;render()});
+  // ---- texto para o WhatsApp com o que está na tela ----
+  const textoWa=()=>{
+    const selTxt=id=>{const e=$(id);return e&&e.value!==''?e.options[e.selectedIndex].text:''};
+    const filtros=[selTxt('fSup')&&'Supervisão: '+selTxt('fSup'),selTxt('fVend')&&'Vendedor: '+selTxt('fVend'),selTxt('fRede')&&'Rede: '+selTxt('fRede'),
+      selTxt('fCat')&&'Categoria: '+selTxt('fCat'),q.length?'Busca: '+$('fBusca').value.trim():''].filter(Boolean);
+    const p=x=>x===Infinity?'sem venda':pc(x);
+    let t=`*🔄 Trocas · ${perTxt}*\n`+(fl!==''?`*Loja: ${D.lojas[+fl]}* (${D.redes[+fl]})\n`:'')+
+      `Família: ${FAMTR==='meta'?'Mix + Iogurte (meta)':nomeSel}`+(filtros.length?'\n'+filtros.join(' · '):'')+
+      `\n\nVenda: ${brl(tot.v)}\nTroca: *${brl(tot.t)}*\n% de troca: *${p(pct(tot.t,tot.v))}* (meta: abaixo de 2%)\n`;
+    if(fl===''&&lojas.length)t+=`\n*Lojas que mais trocam:*\n`+lojas.slice(0,10).map((o,i)=>`${i+1}. ${D.lojas[o.k]} — ${brl(o.t)} (${p(o.p)})`).join('\n')+'\n';
+    if(prods.length)t+=`\n*Produtos que mais trocam${fl!==''?' nesta loja':''}:*\n`+prods.slice(0,fl!==''?20:10).map((o,i)=>`${i+1}. ${D.skus[o.k]}${cod(o.k)?' ('+cod(o.k)+')':''} — ${brl(o.t)} (${p(o.p)})`).join('\n')+'\n';
+    return t+`\n_Painel de Metas · Regional ES · relatório de ${META.data}_`;
+  };
+  $('trWa').onclick=()=>{window.open('https://wa.me/?text='+encodeURIComponent(textoWa()),'_blank')};
+  $('trCopia').onclick=async()=>{const t=textoWa();let ok=false;
+    try{await navigator.clipboard.writeText(t);ok=true}catch(e){
+      try{const a=document.createElement('textarea');a.value=t;document.body.appendChild(a);a.select();ok=document.execCommand('copy');a.remove()}catch(e2){}}
+    $('trMsg').textContent=ok?'✅ Copiado! Cole no WhatsApp.':'Não deu para copiar neste navegador.'};
   $('pDe').onchange=()=>{PER.de=+$('pDe').value;render()};$('pAte').onchange=()=>{PER.ate=+$('pAte').value;render()};
   el.querySelectorAll('[data-p]').forEach(e=>e.onclick=()=>{const p=e.dataset.p,a=D.meses[D.mesAtual].slice(0,4);
     PER=p==='mes'?{de:D.mesAtual,ate:D.mesAtual}:p==='ant'?{de:D.mesAtual-1,ate:D.mesAtual-1}:{de:D.meses.findIndex(m=>m.startsWith(a)),ate:D.mesAtual};render()});
