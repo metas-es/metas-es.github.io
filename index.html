@@ -179,7 +179,7 @@ const LS={get:k=>{try{return localStorage.getItem(k)}catch(e){return null}},set:
 const SUB=`Relatório de ${META.data} · dia ${META.dia} de ${META.dias}`;
 // colunas de cada linha de dados (ver build.py)
 const LOJA=0,CAT=1,SKU=2,MCX=3,VCX=4,CCX=5,FAM=6,MR=7,VR=8,DR=9,TR=10,CR=11,MK=12,VK=13,DK=14,CK=15,TSAC=16,VEND=17,SUPV=18;
-let D=null,ABA='cx',ORDTR='r',VERTUDO={l:false,p:false};
+let D=null,ABA='cx',ORDTR='r',FAMTR='meta',VERTUDO={l:false,p:false};
 
 // ---- tema e layout ----
 function aplicaTema(t){document.body.classList.toggle('escuro',t==='escuro');$('bTema').textContent=t==='escuro'?'☀️ Claro':'🌙 Escuro'}
@@ -373,18 +373,24 @@ function valores(){
   $('vVal').innerHTML=rs.length?`<div class="ritmo">Ritmo ideal hoje: <b>${pc(IDEAL)}</b> (dia ${META.dia} de ${META.dias}) · venda líquida = venda − devolução − troca · a carteira não conta para a meta</div>`+card('TOTAL GERAL',T,true)+fams.map(f=>card(f,m.get(f))).join(''):'<div class="empty">Sem dados nesse filtro.</div>';
 }
 
-// ---- aba Trocas (só MIX e IOGURTE; troca SAC não entra) ----
+// ---- aba Trocas (troca SAC não entra; filtro de família; padrão = MIX + IOGURTE, que vale para a meta) ----
+// Bebida láctea (Alegrinho / bebida BH) não conta no MIX da meta, mesmo quando o relatório traz como família MIX.
+const famEf=r=>/^BEBIDA L[ÁA]CTEA/.test(D.cats[r[CAT]])?'BEBIDA LÁCTEA':D.fams[r[FAM]];
+const FAMS_META=['MIX','IOGURTE'];
 function trocas(){
   const fl=$('fLoja').value,fc=$('fCat').value,q=palavras();
-  const okF=new Set(D.fams.map((f,i)=>['MIX','IOGURTE'].includes(f)?i:-1).filter(i=>i>=0));
-  let rs=base().filter(r=>okF.has(r[FAM])&&(fc===''||r[CAT]==fc));
+  const todasF=[...new Set(base().map(famEf))].sort((a,b)=>(ORD.indexOf(a)+1||99)-(ORD.indexOf(b)+1||99)||a.localeCompare(b));
+  if(FAMTR!=='meta'&&FAMTR!=='todas'&&!todasF.includes(FAMTR))FAMTR='meta';
+  const okFam=f=>FAMTR==='todas'?true:FAMTR==='meta'?FAMS_META.includes(f):f===FAMTR;
+  const nomeSel=FAMTR==='meta'?'MIX+IOG':FAMTR==='todas'?'todas as famílias':FAMTR;
+  let rs=base().filter(r=>okFam(famEf(r))&&(fc===''||r[CAT]==fc));
   if(q.length)rs=rs.filter(r=>{const t=textoSku(r[SKU],r[CAT]);return q.every(w=>t.includes(w))});
   const rl=fl===''?rs:rs.filter(r=>r[LOJA]==fl);
   const pct=(t,v)=>v>0?t/v:(t>0?Infinity:0);
   const fp=x=>x===Infinity?'sem venda':pc(x);
   const tot={v:0,t:0},fam={};
-  for(const r of rl){tot.v+=r[VR];tot.t+=r[TR];const f=D.fams[r[FAM]];fam[f]=fam[f]||{v:0,t:0};fam[f].v+=r[VR];fam[f].t+=r[TR]}
-  const agg=(arr,key)=>{const m=new Map();for(const r of arr){const k=key(r);const o=m.get(k)||{k,v:0,t:0,f:D.fams[r[FAM]]};o.v+=r[VR];o.t+=r[TR];m.set(k,o)}
+  for(const r of rl){tot.v+=r[VR];tot.t+=r[TR];const f=famEf(r);fam[f]=fam[f]||{v:0,t:0};fam[f].v+=r[VR];fam[f].t+=r[TR]}
+  const agg=(arr,key)=>{const m=new Map();for(const r of arr){const k=key(r);const o=m.get(k)||{k,v:0,t:0,f:famEf(r)};o.v+=r[VR];o.t+=r[TR];m.set(k,o)}
     return [...m.values()].filter(o=>o.t>0).map(o=>({...o,p:pct(o.t,o.v)}))};
   const ord=a=>a.sort((x,y)=>ORDTR==='r'?y.t-x.t:((y.p===Infinity?-1:y.p)-(x.p===Infinity?-1:x.p)||y.t-x.t));
   const prods=ord(agg(rl,r=>r[SKU]));
@@ -394,8 +400,9 @@ function trocas(){
     <div class="trv"><b>${brl(o.t)}</b><span>${fp(o.p)}</span></div><div class="bar"><i style="width:${o.t/max*100}%;background:var(--bad)"></i></div>
     <div class="trs">venda ${brl(o.v)}${click!==undefined?' · toque para ver os produtos ›':''}</div></div>`;
   const lim=(a,k,n)=>VERTUDO[k]?a:a.slice(0,n);
-  let h=`<div class="kpis k3"><div class="kpi"><b>${brl(tot.v)}</b><span>Venda MIX+IOG</span></div><div class="kpi falta"><b>${brl(tot.t)}</b><span>Troca R$</span></div><div class="kpi falta"><b>${fp(pct(tot.t,tot.v))}</b><span>% de troca</span></div></div>
-  <div class="ritmo">Só famílias <b>MIX</b> e <b>IOGURTE</b> · % troca = troca ÷ venda R$ (troca SAC não entra)${['MIX','IOGURTE'].map(f=>fam[f]?` · ${f}: <b>${fp(pct(fam[f].t,fam[f].v))}</b>`:'').join('')}</div>
+  let h=`<div class="kpis k3"><div class="kpi"><b>${brl(tot.v)}</b><span>Venda ${esc(nomeSel)}</span></div><div class="kpi falta"><b>${brl(tot.t)}</b><span>Troca R$</span></div><div class="kpi falta"><b>${fp(pct(tot.t,tot.v))}</b><span>% de troca</span></div></div>
+  <div class="ordtr famtr">Família: <button data-fa="meta" class="${FAMTR==='meta'?'on':''}">Mix + Iogurte (meta)</button><button data-fa="todas" class="${FAMTR==='todas'?'on':''}">Todas</button>${todasF.map(f=>`<button data-fa="${esc(f)}" class="${FAMTR===f?'on':''}">${esc(f)}</button>`).join('')}</div>
+  <div class="ritmo">${FAMTR==='meta'?'A meta de troca conta só <b>MIX</b> (sem bebida láctea) e <b>IOGURTE</b>':'Visão de acompanhamento: <b>'+esc(nomeSel)+'</b> · para a meta só contam Mix (sem bebida láctea) e Iogurte'} · % troca = troca ÷ venda R$ (troca SAC não entra)${Object.keys(fam).sort((a,b)=>fam[b].t-fam[a].t).map(f=>` · ${esc(f)}: <b>${fp(pct(fam[f].t,fam[f].v))}</b>`).join('')}</div>
   <div class="ordtr">Ordenar por: <button data-o="r" class="${ORDTR==='r'?'on':''}">Maior troca R$</button><button data-o="p" class="${ORDTR==='p'?'on':''}">Maior % troca</button></div>`;
   if(fl!=='')h+=`<div class="card lojasel"><div>Loja: <b>${esc(D.lojas[+fl])}</b></div><button id="trVolta">‹ Ver todas as lojas</button></div>`;
   else h+=`<div class="card"><h2>Lojas que mais trocam (${lojas.length})</h2>${lojas.length?lim(lojas,'l',15).map(o=>linha(D.lojas[o.k],D.redes[o.k],o,maxL,o.k)).join(''):'<div class="empty">Nenhuma troca.</div>'}
@@ -405,6 +412,7 @@ function trocas(){
   const el=$('vTr');el.innerHTML=h;
   el.querySelectorAll('[data-l]').forEach(e=>e.onclick=()=>{$('fLoja').value=e.dataset.l;render();el.scrollIntoView({behavior:'smooth'})});
   el.querySelectorAll('[data-o]').forEach(e=>e.onclick=()=>{ORDTR=e.dataset.o;render()});
+  el.querySelectorAll('[data-fa]').forEach(e=>e.onclick=()=>{FAMTR=e.dataset.fa;render()});
   el.querySelectorAll('[data-m]').forEach(e=>e.onclick=()=>{VERTUDO[e.dataset.m]=!VERTUDO[e.dataset.m];render()});
   const v=$('trVolta');if(v)v.onclick=()=>{$('fLoja').value='';render()};
 }
