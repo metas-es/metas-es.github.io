@@ -486,17 +486,22 @@ function trocas(){
   el.querySelectorAll('[data-o]').forEach(e=>e.onclick=()=>{ORDTR=e.dataset.o;render()});
   el.querySelectorAll('[data-fa]').forEach(e=>e.onclick=()=>{FAMTR=e.dataset.fa;render()});
   // ---- texto para o WhatsApp com o que está na tela ----
-  const textoWa=()=>{
+  const textoWa=()=>{ // texto limpo para WhatsApp: sem ícones, nomes curtos, números alinhados
     const selTxt=id=>{const e=$(id);return e&&e.value!==''?e.options[e.selectedIndex].text:''};
-    const filtros=[selTxt('fSup')&&'Supervisão: '+selTxt('fSup'),selTxt('fVend')&&'Vendedor: '+selTxt('fVend'),selTxt('fRede')&&'Rede: '+selTxt('fRede'),
-      selTxt('fCat')&&'Categoria: '+selTxt('fCat'),q.length?'Busca: '+$('fBusca').value.trim():''].filter(Boolean);
+    const MIN=new Set(['de','da','do','das','dos','e','com','sem','em']);
+    const curto=n=>String(n).replace(/\b(P\.?\s?ALEGRE|PORTO ALEGRE)\b/gi,'').replace(/\s*-\s*/g,' ').replace(/\s+/g,' ').trim().toLowerCase()
+      .split(' ').map((w,i)=>/^\d+([.,]\d+)?(g|gr|kg|ml|l)$/.test(w)?w.replace('gr','g'):/^(kg|g|ml|l|cx|un)$/.test(w)?w:(i&&MIN.has(w))?w:w.charAt(0).toUpperCase()+w.slice(1)).join(' ');
     const p=x=>x===Infinity?'sem venda':pc(x);
-    let t=`*🔄 Trocas · ${perTxt}*\n`+(fl!==''?`*Loja: ${D.lojas[+fl]}* (${D.redes[+fl]})\n`:'')+
-      `Família: ${FAMTR==='meta'?'Mix + Iogurte (meta)':nomeSel}`+(filtros.length?'\n'+filtros.join(' · '):'')+
-      `\n\nVenda: ${brl(tot.v)}\nTroca: *${brl(tot.t)}*\n% de troca: *${p(pct(tot.t,tot.v))}* (meta: abaixo de 2%)\n`;
-    if(fl===''&&lojas.length)t+=`\n*Lojas que mais trocam:*\n`+lojas.slice(0,10).map((o,i)=>`${i+1}. ${D.lojas[o.k]} — ${brl(o.t)} (${p(o.p)})`).join('\n')+'\n';
-    if(prods.length)t+=`\n*Produtos que mais trocam${fl!==''?' nesta loja':''}:*\n`+prods.slice(0,fl!==''?20:10).map((o,i)=>`${i+1}. ${D.skus[o.k]}${cod(o.k)?' ('+cod(o.k)+')':''} — ${brl(o.t)} (${p(o.p)})`).join('\n')+'\n';
-    return t+`\n_Painel de Metas · Regional ES · relatório de ${META.data}_`;
+    const lin=(a,b)=>a.padEnd(10,' ')+b;
+    const filtros=[selTxt('fSup')&&'Supervisão: '+selTxt('fSup'),selTxt('fVend')&&'Vendedor: '+selTxt('fVend'),selTxt('fRede')&&'Rede: '+selTxt('fRede'),
+      selTxt('fCat')&&'Categoria: '+selTxt('fCat')].filter(Boolean);
+    let t=`*TROCAS · ${perTxt.toUpperCase()}*\n`;
+    if(fl!=='')t+=`*${D.lojas[+fl]}*\n${D.redes[+fl]}\n`;
+    t+=`Família: ${FAMTR==='meta'?'Mix + Iogurte (meta)':curto(nomeSel)}\n`+(filtros.length?filtros.join('\n')+'\n':'');
+    t+='\n```\n'+lin('Venda',brl(tot.v))+'\n'+lin('Troca',brl(tot.t))+'\n'+lin('% troca',p(pct(tot.t,tot.v)))+'\n'+lin('Meta','abaixo de 2%')+'\n```\n';
+    if(fl===''&&lojas.length)t+='\n*LOJAS QUE MAIS TROCAM*\n\n'+lojas.slice(0,10).map((o,i)=>`${i+1}. *${D.lojas[o.k]}*\n${brl(o.t)} · ${p(o.p)}`).join('\n\n')+'\n';
+    if(prods.length)t+=`\n*PRODUTOS QUE MAIS TROCAM${fl!==''?' NA LOJA':''}*\n\n`+prods.slice(0,fl!==''?15:10).map((o,i)=>`${i+1}. *${curto(D.skus[o.k])}*\n${brl(o.t)} · ${p(o.p)}${o.p===Infinity?'':' da venda'}`).join('\n\n')+'\n';
+    return t+`\n_Painel de Metas Regional ES · relatório de ${META.data}_`;
   };
   $('trWa').onclick=()=>{window.open('https://wa.me/?text='+encodeURIComponent(textoWa()),'_blank')};
   $('trCopia').onclick=async()=>{const t=textoWa();let ok=false;
