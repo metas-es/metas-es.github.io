@@ -87,6 +87,11 @@ button.sec{background:transparent;color:#fff;border:1px solid rgba(255,255,255,.
 .fxl .fxn{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
 .fxl .fxt{font-size:12.5px;margin-top:4px}
 .alerta h2{color:var(--bad)}
+.altm{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;margin:6px 0 2px;text-align:center}
+.altm div{background:var(--bg);border-radius:6px;padding:4px 2px}
+.altm span{display:block;font-size:10.5px;color:var(--mut)}
+.altm b{font-size:12.5px}
+.altm .altd b{color:var(--bad)}
 .mais{width:100%;margin-top:8px}
 .lojasel{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:13px}
 .troca{font-size:11.5px;color:var(--mut);margin-top:8px;border-top:1px dashed var(--line);padding-top:6px}
@@ -472,8 +477,8 @@ function trocas(){
     for(const r of base(D.hd))if(r.mes>=lc-2&&r.mes<=lc&&okFam(famEf(r))&&(fc===''||r[CAT]==fc)){const o=am.get(r[LOJA])||[0,0,0];o[r.mes-(lc-2)]+=r[TR];am.set(r[LOJA],o)}
     const sobe=[...am].filter(([,t])=>t[0]<t[1]&&t[1]<t[2]&&t[2]>=300).sort((x,y)=>(y[1][2]-y[1][0])-(x[1][2]-x[1][0]));
     const lim3=VERTUDO.a?sobe:sobe.slice(0,8);
-    h+=`<div class="card alerta"><h2>⚠️ Troca subindo 3 meses seguidos (${sobe.length})</h2><div class="fxsub">${esc(mesLab(lc-2))} → ${esc(mesLab(lc-1))} → ${esc(mesLab(lc))} · meses fechados · troca do último mês a partir de R$ 300</div>
-      ${sobe.length?lim3.map(([k,t])=>`<div class="trl" data-l="${k}"><div class="trn">${esc(D.lojas[k])}<small>${esc(D.redes[k])}</small></div><div class="trv"><b>${brl(t[2])}</b><span>+${brl(t[2]-t[0])}</span></div><div class="trs">${t.map(brl).join(' → ')} · toque para ver a loja ›</div></div>`).join(''):'<div class="empty">Nenhuma loja com troca subindo 3 meses seguidos neste filtro. 👍</div>'}
+    h+=`<div class="card alerta"><h2>⚠️ Troca subindo 3 meses seguidos (${sobe.length})</h2><div class="fxsub">Troca em R$ de cada loja nos últimos 3 meses fechados (cada mês separado, não é acumulado). Aumento = último mês menos o primeiro. Só lojas com troca de R$ 300 ou mais no último mês.</div>
+      ${sobe.length?lim3.map(([k,t])=>`<div class="trl" data-l="${k}"><div class="trn">${esc(D.lojas[k])}<small>${esc(D.redes[k])}</small></div><div class="altm">${t.map((x,i)=>`<div><span>${esc(mesLab(lc-2+i))}</span><b>${brl(x)}</b></div>`).join('')}<div class="altd"><span>Aumento</span><b>+${brl(t[2]-t[0])}</b></div></div><div class="trs">troca em R$ de cada mês · toque para ver a loja ›</div></div>`).join(''):'<div class="empty">Nenhuma loja com troca subindo 3 meses seguidos neste filtro. 👍</div>'}
       ${sobe.length>8?`<button class="mais" data-m="a">${VERTUDO.a?'Mostrar menos':'Mostrar todas'}</button>`:''}</div>`;
   }
   if(fl!=='')h+=`<div class="card lojasel"><div>Loja: <b>${esc(D.lojas[+fl])}</b></div><button id="trVolta">‹ Ver todas as lojas</button></div>`;
